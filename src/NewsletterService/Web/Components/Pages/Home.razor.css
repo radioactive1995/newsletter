@@ -1,0 +1,130 @@
+﻿.intro-logos {
+    display: flex;
+    list-style-type: none;
+    text-decoration: none;
+    justify-content: center;
+    gap: 90px;
+    margin-bottom: 40px;
+}
+
+.intro-logos img {
+    max-width: 100px;
+}
+
+.intro-logos img:nth-of-type(1) {
+    border-radius: 50%;
+}
+
+
+
+#current-developers {
+    color: red;
+    font-style: italic;
+    font-size: xx-large;
+}
+
+
+.home-intro {
+    display: block;
+    margin: 0 auto 50px auto;
+}
+
+#epost-form {
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    gap: 2px;
+}
+
+#email-input {
+    width: 75%;
+    padding: 4px;
+    color: #111144;
+    background-color: floralwhite;
+    border-radius: 3px;
+}
+
+#email-submit {
+    width: 25%;
+    padding: 4px;
+    background-color: floralwhite;
+    border: 1px solid black;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: large;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+#email-submit:hover {
+    background-color: #111133;
+    color: floralwhite;
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+    width: 15px;
+    aspect-ratio: 1;
+    --c1: linear-gradient(90deg, #0000 calc(100% / 3), #111144 0 calc(2 * 100% / 3), #0000 0);
+    --c2: linear-gradient(0deg, #0000 calc(100% / 3), #111144 0 calc(2 * 100% / 3), #0000 0);
+    background: var(--c1),var(--c2),var(--c1),var(--c2);
+    background-size: 300% 4px,4px 300%;
+    background-repeat: no-repeat;
+    animation: l3 1s infinite linear;
+    : #111144;
+}
+
+@keyframes l3 {
+    0% {
+        background-position: 50% 0,100% 100%,0 100%,0 0
+    }
+
+    25% {
+        background-position: 0 0,100% 50%,0 100%,0 0
+    }
+
+    50% {
+        background-position: 0 0,100% 0,50% 100%,0 0
+    }
+
+    75% {
+        background-position: 0 0,100% 0,100% 100%,0 50%
+    }
+
+    75.01% {
+        background-position: 100% 0,100% 0,100% 100%,0 50%
+    }
+
+    100% {
+        background-position: 50% 0,100% 0,100% 100%,0 100%
+    }
+}
+
+
+#success-email {
+    margin-top: 10px;
+    padding: 1px 2px 1px 2px;
+    background-color: #114411;
+    border-radius: 3px;
+    display: inline-block;
+    color: floralwhite;
+}
+
+@media screen and (max-width: 600px) {
+    .intro-logos {
+        width: 0;
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .intro-logos img {
+        width: 0;
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+}
+}

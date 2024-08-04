@@ -1,0 +1,58 @@
+﻿@page "/articles"
+@rendermode InteractiveServer
+
+@inject IMediator Mediator
+
+<PageTitle>Articles</PageTitle>
+
+@if (articles.Length == 0)
+{
+    <p>No articles available.</p>
+}
+else
+{
+    <ul class="articles @(articles.Length == 1 ? "articles-single" : "articles-double")">
+        @foreach (var article in articles)
+        {
+            <li>
+                <a href="https://google.com">
+                    <h4>@article.Title</h4>
+                    <img src="@article.ArticleImageUrl" alt="@article.Title" />
+                </a>
+            </li>
+        }
+    </ul>
+    <Pagination CurrentPage="CurrentPage" MaxPage="MaxPage" OnPageChanged="OnPageChanged" />
+}
+
+@code {
+    public FetchArticles.Response[] articles = Array.Empty<FetchArticles.Response>();
+    public int CurrentPage { get; set; }
+    public int PageSize => 4;
+    public int TotalArticles { get; set; }
+    public int MaxPage => (int)Math.Ceiling((double)TotalArticles / PageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentPage = 1;
+        await LoadArticlesAsync();
+    }
+
+    public async Task LoadArticlesAsync()
+    {
+        TotalArticles = 0;
+        var response = await Mediator.Send(new FetchArticles.Query(CurrentPage, PageSize));
+        articles = response;
+
+        if (response.Length > 0)
+        {
+            TotalArticles = response[0].ArticlesCount;
+        }
+    }
+
+    public async Task OnPageChanged(int newPage)
+    {
+        CurrentPage = newPage;
+        await LoadArticlesAsync();
+    }
+}

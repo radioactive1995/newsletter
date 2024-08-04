@@ -1,0 +1,79 @@
+﻿@rendermode InteractiveServer
+
+<div class="pagination">
+    <button type="submit" @onclick="() => NavigateToPage(CurrentPage - 1)" class="@(CurrentPage == 1 ? "disabled" : "")">&laquo;</button>
+
+    <button type="submit" @onclick="() => NavigateToPage(CurrentPage)" class="active">@CurrentPage</button>
+
+    <button type="submit" @onclick="() => NavigateToPage(CurrentPage + 1)" class="@(CurrentPage == MaxPage ? "disabled" : "")">&raquo;</button>
+
+</div>
+
+
+
+
+@code {
+    [Parameter]
+    public int CurrentPage { get; set; }
+
+    [Parameter]
+    public int MaxPage { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+    private List<int> GetPageNumbers()
+    {
+        //const int visiblePages = 3; // Number of pages to display before and after the current page
+        //var pages = new List<int>();
+        //
+        //// Always include the first page
+        //pages.Add(1);
+        //
+        //// Determine the start and end of the visible page range
+        //int startPage = Math.Max(CurrentPage - visiblePages, 2);
+        //int endPage = Math.Min(CurrentPage + visiblePages, MaxPage - 1);
+        //
+        //// Add ellipsis if there is a gap between the first page and the start of the visible range
+        //if (startPage > 2)
+        //{
+        //    pages.Add(-1); // Represent ellipsis
+        //}
+        //
+        //// Add pages in the visible range
+        //for (int i = startPage; i <= endPage; i++)
+        //{
+        //    pages.Add(i);
+        //}
+        //
+        //// Add ellipsis if there is a gap between the end of the visible range and the last page
+        //if (endPage < MaxPage - 1)
+        //{
+        //    pages.Add(-1); // Represent ellipsis
+        //}
+        //
+        //// Always include the last page
+        //if (MaxPage > 1)
+        //{
+        //    pages.Add(MaxPage);
+        //}
+
+        var pages = new List<int>() {};
+
+        if (CurrentPage != 1) pages.Add(1);
+
+        pages.Add(CurrentPage);
+
+        if (CurrentPage != MaxPage) pages.Add(MaxPage);
+
+        return pages;
+    }
+
+    private async Task NavigateToPage(int page)
+    {
+        if (page != CurrentPage && page > 0 && page <= MaxPage)
+        {
+            await OnPageChanged.InvokeAsync(page);
+        }
+    }
+}

@@ -1,0 +1,60 @@
+﻿@page "/"
+@attribute [StreamRendering]
+
+<PageTitle>Home</PageTitle>
+
+<ul class="intro-logos">
+    <li><img src="./Microsoft_.NET_logo.svg" /></li>
+    <li><img src="./azure-devops.svg" /></li>
+    <li><img src="./Microsoft_Azure.svg" /></li>
+</ul>
+
+<h4 class="home-intro">
+    Welcome to your go-to source for all things C# and .NET! Our newsletter is designed to keep you up-to-date with the latest features, updates, and best practices in the world of C# and .NET development.
+</h4>
+
+<h4 class="home-intro">
+    Currently <span id="current-developers">1</span> developers have choosen to stay updated and receive newsletter notifications with mails. Join today to be one of them!
+</h4>
+
+<form id="epost-form" method="post" @onsubmit="Submit" @formname="email-form">
+    <AntiforgeryToken />
+    <input required type="email" @bind="Email" id="email-input" placeholder="Enter your email...">
+    <button id="email-submit" type="submit">
+        Submit
+        @if (ShowLoading)
+        {
+            <div class="loader"></div>
+        }
+    </button>
+</form>
+
+@if (!ShowLoading && Submitted)
+{
+    <div id="success-email"><h4>You are subscriped to the newsletter!</h4></div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Email = string.Empty;
+        ShowLoading = false;
+        Submitted = false;
+    }
+
+    public string Email { get; set; }
+    public bool Submitted { get; set; }
+    private bool ShowLoading { get; set; }
+
+    private async Task Submit()
+    {
+        Submitted = false;
+        ShowLoading = true;
+
+        // Perform core logic
+        await Task.Delay(TimeSpan.FromSeconds(5));
+
+        Submitted = true;
+        ShowLoading = false;
+    }
+}
