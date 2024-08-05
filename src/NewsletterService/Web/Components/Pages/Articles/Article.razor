@@ -1,0 +1,23 @@
+﻿@page "/articles/{id:int}"
+@inject IMediator Mediator
+
+
+
+<PageTitle>Article</PageTitle>
+
+@if (ArticleResponse != null)
+{
+    <h4>@ArticleResponse.Title</h4>
+    <div>@(new MarkupString(Markdown.ToHtml(ArticleResponse.MarkdownContent))))</div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public FetchArticle.Response? ArticleResponse { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArticleResponse = await Mediator.Send(new FetchArticle.Query(Id));
+    }
+}

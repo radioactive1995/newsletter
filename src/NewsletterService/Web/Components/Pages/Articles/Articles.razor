@@ -1,6 +1,4 @@
 ﻿@page "/articles"
-@rendermode InteractiveServer
-
 @inject IMediator Mediator
 
 <PageTitle>Articles</PageTitle>
@@ -9,13 +7,14 @@
 {
     <p>No articles available.</p>
 }
+
 else
 {
     <ul class="articles @(articles.Length == 1 ? "articles-single" : "articles-double")">
         @foreach (var article in articles)
         {
             <li>
-                <a href="https://google.com">
+                <a href="/articles/@article.Id">
                     <h4>@article.Title</h4>
                     <img src="@article.ArticleImageUrl" alt="@article.Title" />
                 </a>
@@ -31,16 +30,18 @@ else
     public int PageSize => 4;
     public int TotalArticles { get; set; }
     public int MaxPage => (int)Math.Ceiling((double)TotalArticles / PageSize);
+    private bool Initiliazed { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         CurrentPage = 1;
+        TotalArticles = 0;
+
         await LoadArticlesAsync();
     }
 
     public async Task LoadArticlesAsync()
     {
-        TotalArticles = 0;
         var response = await Mediator.Send(new FetchArticles.Query(CurrentPage, PageSize));
         articles = response;
 

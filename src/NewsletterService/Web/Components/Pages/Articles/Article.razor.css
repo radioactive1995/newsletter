@@ -1,0 +1,72 @@
+﻿.articles-single {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.articles-double {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.articles-multiple {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+
+
+.articles {
+    display: grid;
+    gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
+    overflow: hidden;
+    gap: 60px;
+    margin: 0 auto;
+    overflow: hidden;
+    list-style-type: none;
+    padding: 0;
+}
+
+.articles li {
+    justify-content: center;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: floralwhite;
+    color: #111144;
+    max-height: 500px;
+}
+
+.articles li a {
+    color: unset;
+    text-decoration: none;
+}
+
+.articles li:hover {
+    background-color: #111133;
+    color: floralwhite;
+}
+
+.articles li img {
+    object-fit: cover;
+    width: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+.articles li h4 {
+    padding: 10px;
+    text-align: center;
+    font-weight: 700;
+}
+
+@media screen and (max-width: 1500px) {
+
+    .articles-multiple {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .articles-double {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .articles-single {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}

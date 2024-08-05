@@ -6,6 +6,7 @@ public interface IArticleRepository
 {
     Task<int> FetchArticlesCount();
     Task<Article[]> FetchArticles(int currentPage, int pageSize);
+    Task<Article?> FetchArticle(int id);
 }
 
 public class ArticleRepository : IArticleRepository
@@ -16,8 +17,33 @@ public class ArticleRepository : IArticleRepository
             Id = 1,
             Title = "Why coding makes you smarter",
             ArticleImageUrl = "https://livewell.uw.edu/wp-content/uploads/2020/05/brain.jpg",
-            MarkdownContent = "#Dummy title!"
+            MarkdownContent = @"
+# Introduction to C#
+
+C# is a modern, object-oriented programming language developed by Microsoft. It is widely used for developing web applications, desktop applications, and more.
+
+## Features of C#
+
+- Strongly Typed
+- Object-Oriented
+- Interoperable
+
+### Sample Code
+
+```csharp
+using System;
+
+public class HelloWorld
+{
+    public static void Main()
+    {
+        Console.WriteLine(""Hello, World!"");
+    }
+}"
         },
+
+
+
         new Article
         {
             Id = 2,
@@ -114,5 +140,10 @@ public class ArticleRepository : IArticleRepository
         int skipCount = (currentPage - 1) * pageSize;
         var resultArticles = articles.Skip(skipCount).Take(pageSize).ToArray();
         return Task.FromResult(resultArticles);
+    }
+
+    public Task<Article?> FetchArticle(int id)
+    {
+        return Task.FromResult(articles.FirstOrDefault(article => article.Id == id));
     }
 }
