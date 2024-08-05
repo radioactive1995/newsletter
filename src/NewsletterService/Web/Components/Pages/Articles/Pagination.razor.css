@@ -1,5 +1,5 @@
 ﻿.pagination {
-    margin-top: 60px;
+    margin-bottom: 60px;
     display: flex;
     list-style-type: none;
     padding: 0;
@@ -31,7 +31,7 @@ background-color: #111144;
 
 .pagination     .disabled {
     pointer-events: none;
-    color: #999;
+    color: #111144;
     border: 0;
 }
 

@@ -58,3 +58,11 @@ body {
 html {
     display: block;
 }
+
+pre {
+    padding: 10px;
+    color: #58587c;
+    border: 3px ridge antiquewhite !important;
+    background-color: #cfcfd9;
+    font-weight: 900;
+}

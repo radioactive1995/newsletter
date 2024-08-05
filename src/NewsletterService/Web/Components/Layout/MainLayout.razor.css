@@ -6,6 +6,7 @@ header {
     font-size: large;
     color: floralwhite;
     position: fixed;
+    z-index: 999 !important;
 }
 
 main {
@@ -13,9 +14,8 @@ main {
     min-height: 1500px;
     min-width: 350px;
     margin: 0 auto;
-    width: 60%;
     min-width: 350px;
-    max-width: 1500px;
+    max-width: 1100px;
     height: auto;
 }
 

@@ -30,7 +30,6 @@
     overflow: hidden;
     background-color: floralwhite;
     color: #111144;
-    max-height: 500px;
 }
 
 .articles li a {
@@ -48,6 +47,7 @@
     width: 100%;
     display: block;
     margin: 0 auto;
+    height: 100%;
 }
 
 .articles li h4 {

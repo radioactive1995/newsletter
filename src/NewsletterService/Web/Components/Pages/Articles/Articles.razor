@@ -10,18 +10,18 @@
 
 else
 {
-    <ul class="articles @(articles.Length == 1 ? "articles-single" : "articles-double")">
+    <Pagination CurrentPage="CurrentPage" MaxPage="MaxPage" OnPageChanged="OnPageChanged" />
+    <ul class="articles articles-double">
         @foreach (var article in articles)
         {
             <li>
                 <a href="/articles/@article.Id">
                     <h4>@article.Title</h4>
-                    <img src="@article.ArticleImageUrl" alt="@article.Title" />
+                    <img src="./test_2.jpg" alt="@article.Title" />
                 </a>
             </li>
         }
     </ul>
-    <Pagination CurrentPage="CurrentPage" MaxPage="MaxPage" OnPageChanged="OnPageChanged" />
 }
 
 @code {

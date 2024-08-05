@@ -16,7 +16,7 @@ public class ArticleRepository : IArticleRepository
         {
             Id = 1,
             Title = "Why coding makes you smarter",
-            ArticleImageUrl = "https://livewell.uw.edu/wp-content/uploads/2020/05/brain.jpg",
+            ArticleImageUrl = "./c#_image.webp",
             MarkdownContent = @"
 # Introduction to C#
 
