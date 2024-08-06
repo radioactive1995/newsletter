@@ -1,9 +1,10 @@
-﻿namespace Domain.Articles;
+﻿using Domain.Common;
 
-public class Article
+namespace Domain.Articles;
+
+public class Article : Entity<int>
 {
-    public int Id { get; set; }
     public required string Title { get; set; }
-    public required string ArticleImageUrl { get; set; }
     public required string MarkdownContent { get; set; }
+    public required string Author { get; set; }
 }

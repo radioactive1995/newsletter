@@ -11,7 +11,6 @@ public static class FetchArticles
     public record Response(
         int Id,
         string Title,
-        string ArticleImageUrl,
         string MarkdownContent,
         int ArticlesCount);
 
@@ -37,7 +36,6 @@ public static class FetchArticles
             return new Response(
                 entity.Id,
                 entity.Title,
-                entity.ArticleImageUrl,
                 entity.MarkdownContent,
                 articlesCount);
         }

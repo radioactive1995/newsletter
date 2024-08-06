@@ -1,0 +1,72 @@
+
+# Dapr Introduction and Service-to-Service Invocation Part I
+
+When working with distributed systems, there are many factors to consider, including the environment you are operating in, ensuring the relevant configurations are up and running, and maintaining communication between the services and components. One common pitfall in developing a distributed system is not having a smart way to manage all the key-value pair configurations used for service-to-service communication, database connections, and other integrations. This challenge is compounded when you need to differentiate between various environment configurations and maintain each one of them.
+
+Another difficulty in working with such systems arises when using different vendors' SDKs to integrate with their resources. This approach often results in a strong coupling to that specific infrastructure within your code, which might not be desirable, particularly when moving between local development environments and staging environments in the cloud.
+
+This is where Dapr comes into play, addressing these problems and more.
+
+Dapr is a runtime application designed to be a handy tool for distributed systems, helping achieve quality attributes like resilience, maintainability, and scalability. It accomplishes this by offering "building blocks," each a coherent set of APIs tailored to specific feature.
+
+## Sidecar Pattern
+A significant feature of the Dapr runtime is its implementation of the sidecar pattern. In this pattern, every microservice has its own dedicated sidecar application running alongside it. The core principle here is that your main service contains the essential business logic and features, while cross-cutting concerns are offloaded to its sidecar.
+
+In the context of Dapr, these cross-cutting concerns are particularly interesting because by offloading responsibilities to Dapr for communicating with different outbound sources, your microservice is relieved from integrating directly with vendor SDKs. Instead, it interacts with a consistent set of Dapr APIs, independent of the underlying infrastructure.
+
+Each Dapr sidecar exposes APIs for metadata, health checks, and building blocks. The metadata and health APIs are used for load balancing and discovering the appropriate destinations for communication.
+
+<figure>
+  <img src="https://docs.dapr.io/images/overview-sidecar-apis.png" alt="The Dapr Sidecar APIs" width="100%"/>
+  <figcaption>The Dapr Sidecar APIs</figcaption>
+</figure>
+
+
+## Dapr Components
+Dapr components are pluggable units that provide integration with various external systems and services. These components enable Dapr applications to interact with different resources such as state stores, message brokers, bindings, and observability tools. By leveraging Dapr components, developers can switch between different infrastructure providers without changing application code, enhancing the portability and flexibility of distributed applications.
+
+Dapr components are declared in YAML configuration files. These declarations specify how Dapr should interact with external resources and define the metadata and configuration details necessary for integration. Components can be used by Dapr's building blocks to perform various operations like state management, publish/subscribe messaging, and resource binding.
+
+Example Component Declaration
+Below is an example of a YAML file that configures a Redis state store component for use by the Dapr state management building block:
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: default
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: "localhost:6379"
+  - name: redisPassword
+    value: ""
+```
+In this example, the component is given a name (statestore) and specifies the type (state.redis) and version (v1). The metadata section contains key-value pairs needed to configure the Redis connection.
+
+
+## Dapr Building Blocks
+
+Dapr building blocks are modular APIs that provide essential functionality for building distributed applications. They abstract away the complexities of working with various infrastructure components, allowing developers to focus on business logic. Dapr building blocks utilize Dapr Component declarations to provide various functionalities to your applications. A sevice depends on building block API and the building block depends on one or several Dapr Component declarations that determines it behavior. Summary of building blocks shown below:
+
+
+<figure>
+  <img src="https://docs.dapr.io/images/building_blocks.png" alt="Dapr Building Blocks" width="600"/>
+  <figcaption>Dapr Building Blocks</figcaption>
+</figure>
+
+## Service-to-Service Invocation
+The service-to-service invocation building block is a fundamental part of Dapr, enabling microservices to communicate with each other efficiently and reliably. This building block abstracts the complexities of service discovery and routing, allowing developers to focus on their business logic without worrying about the intricacies of network communication.
+
+* Service Discovery: Dapr automatically handles service discovery, allowing services to locate and communicate with each other without hard-coded addresses.
+
+* Load Balancing: The Dapr runtime includes load balancing mechanisms, ensuring requests are distributed evenly across service instances.
+
+* Protocol Agnostic: Supports both HTTP and gRPC, allowing developers to choose the communication protocol that best suits their needs.
+
+* Security: Dapr supports secure communication between services using mutual TLS, ensuring data privacy and integrity.
+
+By using Dapr's service-to-service invocation building block, developers can build robust and scalable microservices architectures without the overhead of managing communication complexities.

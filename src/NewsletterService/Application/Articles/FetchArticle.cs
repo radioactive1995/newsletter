@@ -11,7 +11,6 @@ public static class FetchArticle
     public record Response(
         int Id,
         string Title,
-        string ArticleImageUrl,
         string MarkdownContent);
 
     public class QueryHandler(
@@ -37,7 +36,6 @@ public static class FetchArticle
             return new Response(
                 entity.Id,
                 entity.Title,
-                entity.ArticleImageUrl,
                 entity.MarkdownContent);
         }
     }

@@ -1,0 +1,22 @@
+# Introduction to C#
+
+C# is a modern, object-oriented programming language developed by Microsoft. It is widely used for developing web applications, desktop applications, and more.
+
+## Features of C#
+
+- Strongly Typed
+- Object-Oriented
+- Interoperable
+
+### Sample Code
+
+```csharp
+using System;
+
+public class HelloWorld
+{
+    public static void Main()
+    {
+        Console.WriteLine(""Hello, World!"");
+    }
+}
