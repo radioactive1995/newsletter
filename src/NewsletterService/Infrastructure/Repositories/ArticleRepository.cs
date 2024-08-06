@@ -1,14 +1,7 @@
-﻿using Domain.Articles;
+﻿using Application.Interfaces;
+using Domain.Articles;
 
-namespace Web.Core;
-
-public interface IArticleRepository
-{
-    Task<int> FetchArticlesCount();
-    Task<Article[]> FetchArticles(int currentPage, int pageSize);
-    Task<Article?> FetchArticle(int id);
-}
-
+namespace Infrastructure.Repositories;
 public class ArticleRepository : IArticleRepository
 {
     private Article[] articles = [

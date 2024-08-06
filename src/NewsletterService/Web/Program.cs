@@ -1,6 +1,7 @@
 using System.Reflection;
 using Web.Components;
-using Web.Core;
+using Application;
+using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,10 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddMediatR(
-    e => e.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-
-builder.Services.AddTransient<IArticleRepository, ArticleRepository>();
+builder.Services
+    .AddInfrastructure()
+    .AddApplication();
 
 var app = builder.Build();
 

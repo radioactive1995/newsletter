@@ -1,8 +1,8 @@
 ﻿using Domain.Articles;
 using MediatR;
-using Web.Core;
+using Application.Interfaces;
 
-namespace Web.Articles;
+namespace Application.Articles;
 
 public static class FetchArticle
 {

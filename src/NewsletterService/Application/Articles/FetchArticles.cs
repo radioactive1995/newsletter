@@ -1,17 +1,17 @@
 ﻿using Domain.Articles;
 using MediatR;
-using Web.Core;
+using Application.Interfaces;
 
-namespace Web.Articles;
+namespace Application.Articles;
 
 public static class FetchArticles
 {
     public record Query(int CurrentPage, int PageSize) : IRequest<Response[]>;
 
     public record Response(
-        int Id, 
-        string Title, 
-        string ArticleImageUrl, 
+        int Id,
+        string Title,
+        string ArticleImageUrl,
         string MarkdownContent,
         int ArticlesCount);
 
