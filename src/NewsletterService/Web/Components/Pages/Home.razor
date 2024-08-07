@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject IMediator Mediator
 
 <PageTitle>Home</PageTitle>
 
@@ -13,7 +14,7 @@
 </h4>
 
 <h4 class="home-intro">
-    Currently <span id="current-developers">1</span> developers have choosen to stay updated and receive newsletter notifications with mails. Join today to be one of them!
+    Currently <span id="current-developers">@SubscribersCountResult?.Count</span> developers have choosen to stay updated and receive newsletter notifications with mails. Join today to be one of them!
 </h4>
 
 <form id="epost-form" method="post" @onsubmit="Submit" @formname="email-form">
@@ -28,9 +29,14 @@
     </button>
 </form>
 
-@if (!ShowLoading && Submitted)
+@if ((!ShowLoading && SubmitResult.HasValue && ((SubmitResult.Value.IsError && SubmitResult.Value.FirstError.Type == ErrorType.Conflict) || !SubmitResult.Value.IsError)))
 {
     <div id="success-email"><h4>You are subscriped to the newsletter!</h4></div>
+}
+
+else if (!ShowLoading && SubmitResult.HasValue && SubmitResult.Value.IsError)
+{
+    <div id="exhausted-email"><h4>Exhausted attempts to subscribe, try again later.</h4></div>
 }
 
 @code {
@@ -38,22 +44,25 @@
     {
         Email = string.Empty;
         ShowLoading = false;
-        Submitted = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Email = string.Empty;
+        ShowLoading = false;
+        SubscribersCountResult = await Mediator.Send(new FetchSubscribersCount.Query());
     }
 
     public string Email { get; set; }
-    public bool Submitted { get; set; }
     private bool ShowLoading { get; set; }
+    public FetchSubscribersCount.Response? SubscribersCountResult { get; set; }
+    public ErrorOr<SubscribeToNewsletter.Response>? SubmitResult { get; set; }
+
 
     private async Task Submit()
     {
-        Submitted = false;
         ShowLoading = true;
-
-        // Perform core logic
-        await Task.Delay(TimeSpan.FromSeconds(5));
-
-        Submitted = true;
+        SubmitResult = await Mediator.Send(new SubscribeToNewsletter.Query(Email));
         ShowLoading = false;
     }
 }

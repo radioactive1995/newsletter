@@ -112,6 +112,15 @@
     color: floralwhite;
 }
 
+#exhausted-email {
+    margin-top: 10px;
+    padding: 1px 2px 1px 2px;
+    background-color: #ebdd7a;
+    border-radius: 3px;
+    display: inline-block;
+    color: #111144;
+}
+
 @media screen and (max-width: 600px) {
     .intro-logos {
         width: 0;

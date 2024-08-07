@@ -1,7 +1,8 @@
-using System.Reflection;
 using Web.Components;
 using Application;
 using Infrastructure;
+using Application.Interfaces;
+using Web.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,9 @@ builder.Services.AddRazorComponents()
 builder.Services
     .AddInfrastructure()
     .AddApplication();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 
