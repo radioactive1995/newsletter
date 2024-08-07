@@ -1,5 +1,6 @@
 ﻿using Domain.Articles;
 using Domain.Common;
+using Domain.Subscribers;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -8,6 +9,7 @@ namespace Infrastructure.Persistance;
 public class NewsletterContext : DbContext
 {
     public DbSet<Article> Articles { get; set; }
+    public DbSet<Subscriber> Subscribers { get; set; }
 
     public NewsletterContext(DbContextOptions<NewsletterContext> options) : base(options) {}
 
@@ -37,6 +39,16 @@ public class NewsletterContext : DbContext
                 MarkdownContent = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Persistance", "Data", "article2.txt")),
                 Author = "Sultan Dzjumajev"
             });
+        });
+
+
+        modelBuilder.Entity<Subscriber>(entity =>
+        {
+            entity.ToTable(nameof(Subscribers));
+
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Email).IsRequired();
         });
 
         foreach (var entitetType in modelBuilder.Model.GetEntityTypes())

@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Infrastructure.Persistance;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,9 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         services.AddTransient<IArticleRepository, ArticleRepository>();
+        services.AddTransient<ISubscriberRepository, SubscriberRepository>();
+
+        services.AddSingleton<IMemoryService, MemoryService>();
 
         services.AddDbContextFactory<NewsletterContext>((provider, options) =>
         {
@@ -20,6 +24,7 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString);
         });
 
+        services.AddDistributedMemoryCache();
 
         return services;
     }
