@@ -1,6 +1,6 @@
 ﻿using Domain.Subscribers;
 
-namespace Application.Interfaces;
+namespace Application.Interfaces.Repositories;
 
 public interface ISubscriberRepository
 {

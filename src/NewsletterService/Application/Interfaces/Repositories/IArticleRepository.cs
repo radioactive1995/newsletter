@@ -1,6 +1,6 @@
 ﻿using Domain.Articles;
 
-namespace Application.Interfaces;
+namespace Application.Interfaces.Repositories;
 
 public interface IArticleRepository
 {

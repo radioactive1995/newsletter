@@ -1,12 +1,16 @@
 ﻿using Domain.Articles;
 using MediatR;
-using Application.Interfaces;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Requests;
 
 namespace Application.Articles;
 
 public static class FetchArticle
 {
-    public record Query(int Id) : IRequest<Response?>;
+    public record Query(int Id) : ICachedQuery<Response?>
+    {
+        public string Key => $"{nameof(FetchArticle)}:{Id}";
+    }
 
     public record Response(
         int Id,

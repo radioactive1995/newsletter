@@ -1,13 +1,15 @@
-﻿using Domain.Subscribers;
-using Application.Interfaces;
-using ErrorOr;
-using MediatR;
+﻿using MediatR;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Requests;
 
 namespace Application.Subscribers;
 
 public static class FetchSubscribersCount
 {
-    public record Query() : IRequest<Response>;
+    public record Query() : ICachedQuery<Response>
+    {
+        public string Key => $"{nameof(FetchSubscribersCount)}";
+    }
 
     public record Response(int Count);
 

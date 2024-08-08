@@ -1,4 +1,6 @@
-﻿using Application.Interfaces;
+﻿using Application.Interfaces.Repositories;
+using Application.Interfaces.Requests;
+using Application.Interfaces.Services;
 using Domain.Articles;
 using Domain.Subscribers;
 using ErrorOr;
@@ -8,13 +10,16 @@ namespace Application.Subscribers;
 
 public static class SubscribeToNewsletter
 {
-    public record Query(string Email) : IRequest<ErrorOr<Response>>;
+    public record Query(string Email) : IInvalidateCacheCommand<ErrorOr<Response>>
+    {
+        public string[] InvalidateKeys => [new FetchSubscribersCount.Query().Key];
+    }
 
     public record Response();
 
     public class QueryHandler(
         ICurrentUserService userService,
-        IMemoryService memoryService,
+        ICacheService memoryService,
         ISubscriberRepository subscriberRepository) : IRequestHandler<Query, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Query request, CancellationToken cancellationToken)
@@ -32,7 +37,7 @@ public static class SubscribeToNewsletter
 
             await subscriberRepository.AddSubscriber(subcriber);
 
-            await memoryService.StoreKeyValuePair(key: userIpAddress, value: "q", expiry: TimeSpan.FromMinutes(5));
+            await memoryService.AddCache(key: userIpAddress, value: "q", expiry: TimeSpan.FromHours(5));
 
             return new Response();
         }

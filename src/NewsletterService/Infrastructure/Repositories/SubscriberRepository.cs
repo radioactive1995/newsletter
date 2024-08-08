@@ -1,8 +1,10 @@
-﻿using Application.Interfaces;
+﻿using Application.Interfaces.Repositories;
 using Domain.Subscribers;
 using Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
+
 namespace Infrastructure.Repositories;
+
 public class SubscriberRepository
     (IDbContextFactory<NewsletterContext> factory) : ISubscriberRepository
 {

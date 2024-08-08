@@ -1,8 +1,8 @@
 using Web.Components;
 using Application;
 using Infrastructure;
-using Application.Interfaces;
 using Web.Core;
+using Application.Interfaces.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

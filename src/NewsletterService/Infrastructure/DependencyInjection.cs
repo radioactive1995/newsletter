@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Infrastructure.Persistance;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
@@ -14,7 +15,7 @@ public static class DependencyInjection
         services.AddTransient<IArticleRepository, ArticleRepository>();
         services.AddTransient<ISubscriberRepository, SubscriberRepository>();
 
-        services.AddSingleton<IMemoryService, MemoryService>();
+        services.AddSingleton<ICacheService, CacheService>();
 
         services.AddDbContextFactory<NewsletterContext>((provider, options) =>
         {
