@@ -16,8 +16,13 @@ COPY ["src/NewsletterService/Domain/Domain.csproj", "Domain/"]
 COPY ["src/NewsletterService/Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 RUN dotnet restore "./Web/Web.csproj"
 
-# Copy the remaining files and print the directory contents for debugging
-COPY . .
+# Copy the remaining source files
+COPY src/NewsletterService/Web/ ./Web/
+COPY src/NewsletterService/Application/ ./Application/
+COPY src/NewsletterService/Domain/ ./Domain/
+COPY src/NewsletterService/Infrastructure/ ./Infrastructure/
+
+# Print the directory contents for debugging
 RUN ls -la /src/Web
 RUN cat /src/Web/Program.cs
 
@@ -31,5 +36,4 @@ RUN dotnet publish "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:Use
 # Use the ASP.NET base image for the final stage
 FROM base AS final
 WORKDIR /app
-COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "Web.dll"]
+COPY --from=build /app/publish
