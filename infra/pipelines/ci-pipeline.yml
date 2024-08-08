@@ -1,0 +1,24 @@
+name: Newsletter-CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_net:
+    runs-on: ubuntu-latest
+    steps:
+      - name: git pull current branch
+        uses: actions/checkout@v4
+      - name: Setup dotnet sdk
+        uses: actions/setup-dotnet@v4.0.1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: run build newsletter
+        run: dotnet build ./src/NewsletterService/NewsletterService.sln
+
+      - name: run tests newsletter
+        run: dotnet test ./src/NewsletterService/NewsletterService.sln
