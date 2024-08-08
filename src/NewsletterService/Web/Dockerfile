@@ -18,10 +18,11 @@ RUN dotnet restore "./Web/Web.csproj"
 
 # Copy the remaining files and build the project
 COPY . .
-RUN dotnet build "./src/Web/Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR /src/Web
+RUN dotnet build "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publish the application
-RUN dotnet publish "./src/Web/Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Use the ASP.NET base image for the final stage
 FROM base AS final
