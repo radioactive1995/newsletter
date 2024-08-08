@@ -16,9 +16,13 @@ COPY ["src/NewsletterService/Domain/Domain.csproj", "Domain/"]
 COPY ["src/NewsletterService/Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 RUN dotnet restore "./Web/Web.csproj"
 
-# Copy the remaining files and build the project
+# Copy the remaining files and print the directory contents for debugging
 COPY . .
-WORKDIR /src/Web
+RUN ls -la /src/Web
+RUN cat /src/Web/Program.cs
+
+# Build the project
+WORKDIR "/src/Web"
 RUN dotnet build "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publish the application
