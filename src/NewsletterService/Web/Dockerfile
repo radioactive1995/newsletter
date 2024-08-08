@@ -22,12 +22,10 @@ WORKDIR "/src/Web"
 RUN dotnet build "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publish the application
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Use the ASP.NET base image for the final stage
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Web.dll"]
