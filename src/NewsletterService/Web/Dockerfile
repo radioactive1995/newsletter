@@ -22,10 +22,6 @@ COPY src/NewsletterService/Application/ ./Application/
 COPY src/NewsletterService/Domain/ ./Domain/
 COPY src/NewsletterService/Infrastructure/ ./Infrastructure/
 
-# Print the directory contents for debugging
-RUN ls -la /src/Web
-RUN cat /src/Web/Program.cs
-
 # Build the project
 WORKDIR "/src/Web"
 RUN dotnet build "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/build

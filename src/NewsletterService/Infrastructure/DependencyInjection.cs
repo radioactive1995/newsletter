@@ -5,7 +5,6 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Infrastructure;
 public static class DependencyInjection
@@ -20,7 +19,10 @@ public static class DependencyInjection
         services.AddDbContextFactory<NewsletterContext>((provider, options) =>
         {
             var configuration = provider.GetRequiredService<IConfiguration>();
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            var connectionString = Environment.GetEnvironmentVariable("SQLCONNSTR_DefaultConnection")
+                               ?? configuration.GetConnectionString("DefaultConnection");
+
             options.UseSqlServer(connectionString);
         });
 
