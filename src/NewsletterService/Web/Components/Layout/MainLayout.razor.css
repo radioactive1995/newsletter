@@ -9,8 +9,14 @@ header {
     z-index: 999 !important;
 }
 
+div {
+    position: relative;
+    overflow-x: hidden;
+}
+
+
 main {
-    padding-top: 200px;
+    padding: 200px 25px 200px 25px;
     min-height: 1500px;
     min-width: 350px;
     margin: 0 auto;
@@ -20,8 +26,18 @@ main {
 }
 
 footer {
+    top: 30vh;
+    position: relative;
     width: 100%;
-    min-width: 600px;
     height: 200px;
     background-color: floralwhite;
+}
+
+@media screen and (max-width: 640px) {
+
+    main {
+        padding: 125px 25px 25px 25px;
+        height: auto;
+        overflow: scroll;
+    }
 }

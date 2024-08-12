@@ -27,17 +27,11 @@ public class NewsletterContext : DbContext
             entity.HasData(new Article()
             {
                 Id = 1,
-                Title = "Why coding makes you smarter",
-                MarkdownContent = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Persistance", "Data", "article1.txt")),
-                Author = "Sultan Dzjumajev"
-            });
-
-            entity.HasData(new Article()
-            {
-                Id = 2,
                 Title = "Dapr Introduction and Sevice-to-sevice invocation Part I",
-                MarkdownContent = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Persistance", "Data", "article2.txt")),
-                Author = "Sultan Dzjumajev"
+                MarkdownContent = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Persistance", "Data", "article1.txt")),
+                Author = "Sultan Dzjumajev",
+                CreatedDate = new DateTime(year: 2024, month: 8, day: 10),
+                EditedDate = new DateTime(year: 2024, month: 8, day: 10),
             });
         });
 

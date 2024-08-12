@@ -30,6 +30,9 @@
     overflow: hidden;
     background-color: floralwhite;
     color: #111144;
+    height: 120px;
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 .articles li a {
@@ -56,11 +59,19 @@
     font-weight: 700;
 }
 
-@media screen and (max-width: 1500px) {
+@media screen and (max-width: 640px) {
 
     .articles-multiple {
         grid-template-columns: repeat(1, 1fr);
     }
+
+    .articles {
+        gap: 10px !important;
+    }
+    .articles li {
+        height: auto;
+    }
+
 
     .articles-double {
         grid-template-columns: repeat(1, 1fr);
@@ -68,5 +79,9 @@
 
     .articles-single {
         grid-template-columns: repeat(1, 1fr);
+    }
+
+    .pagination {
+        margin: 0;
     }
 }

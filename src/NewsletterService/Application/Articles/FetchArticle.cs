@@ -15,7 +15,9 @@ public static class FetchArticle
     public record Response(
         int Id,
         string Title,
-        string MarkdownContent);
+        string MarkdownContent,
+        string Author,
+        DateOnly PublishedDate);
 
     public class QueryHandler(
         IArticleRepository articleRepository) : IRequestHandler<Query, Response?>
@@ -40,7 +42,9 @@ public static class FetchArticle
             return new Response(
                 entity.Id,
                 entity.Title,
-                entity.MarkdownContent);
+                entity.MarkdownContent,
+                entity.Author,
+                DateOnly.FromDateTime(entity.CreatedDate));
         }
     }
 }

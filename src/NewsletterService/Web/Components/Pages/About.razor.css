@@ -1,0 +1,36 @@
+﻿
+
+.sultan-intro {
+    display: block;
+    margin: 0 auto;
+}
+
+.first-name {
+    color: red;
+    font-style: italic;
+    font-size: xx-large;
+}
+
+hr {
+    opacity: 0;
+    margin: 15px 0 15px 0;
+}
+
+#name {
+    color: red;
+    font-style: italic;
+    font-size: x-large;
+}
+
+.about-me-picture {
+    border-radius: 10px;
+    margin: 0 10px 0 0px;
+    padding: 0;
+    float: left;
+    width: 10%;
+    transition: width 1s;
+}
+
+.about-me-picture:hover {
+    width: 40%;
+}

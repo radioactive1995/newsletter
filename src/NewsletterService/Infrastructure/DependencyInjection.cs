@@ -20,10 +20,10 @@ public static class DependencyInjection
         services.AddDbContextFactory<NewsletterContext>((provider, options) =>
         {
             var configuration = provider.GetRequiredService<IConfiguration>();
-
+            
             var connectionString = Environment.GetEnvironmentVariable("SQLCONNSTR_DefaultConnection")
                                ?? configuration.GetConnectionString("DefaultConnection");
-
+            
             options.UseSqlServer(connectionString);
         });
 

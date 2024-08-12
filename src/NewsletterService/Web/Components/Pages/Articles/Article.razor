@@ -7,7 +7,11 @@
 
 @if (ArticleResponse != null)
 {
-    <div class="article-content article-color">@(new MarkupString(Markdown.ToHtml(ArticleResponse.MarkdownContent)))</div>
+    <p>@ArticleResponse.MarkdownContent, @ArticleResponse.PublishedDate</p>
+    <div class="article-content article-color">
+        <h1>@ArticleResponse.Title</h1>
+        @(new MarkupString(Markdown.ToHtml(ArticleResponse.MarkdownContent)))
+    </div>
 }
 
 @code {

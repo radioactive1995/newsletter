@@ -53,16 +53,18 @@ body {
     background-color: #111144;
     color: floralwhite;
     display: block;
+    height: auto;
 }
 
 html {
     display: block;
+    width: 100vw;
 }
 
 pre {
     padding: 10px;
-    color: #58587c;
+    color: #111144 !important;
     border: 3px ridge antiquewhite !important;
-    background-color: #cfcfd9;
+    background-color: #e5e1d8 !important;
     font-weight: 900;
 }

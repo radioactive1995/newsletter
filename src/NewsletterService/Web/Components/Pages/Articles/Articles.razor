@@ -17,7 +17,7 @@ else
             <li>
                 <a href="/articles/@article.Id">
                     <h4>@article.Title</h4>
-                    <img src="./test.jpg" alt="@article.Title" />
+                    <!--<img src="./test.jpg" alt="@article.Title" />-->
                 </a>
             </li>
         }
@@ -27,7 +27,7 @@ else
 @code {
     public FetchArticles.Response[] articles = Array.Empty<FetchArticles.Response>();
     public int CurrentPage { get; set; }
-    public int PageSize => 4;
+    public int PageSize => 6;
     public int TotalArticles { get; set; }
     public int MaxPage => (int)Math.Ceiling((double)TotalArticles / PageSize);
     private bool Initiliazed { get; set; }
