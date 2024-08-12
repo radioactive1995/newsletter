@@ -13,6 +13,7 @@ div {
     position: relative;
     overflow-x: hidden;
     min-height: 100vh;
+    overflow-y: hidden;
 }
 
 
@@ -32,7 +33,7 @@ footer {
     bottom: 0;
     left: 0;
     width: 100%;
-    bottom: calc(-15vh)
+    bottom: calc(-15vh);
 }
 
 @media screen and (max-width: 640px) {
