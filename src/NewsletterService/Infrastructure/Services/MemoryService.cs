@@ -23,7 +23,7 @@ public class MemoryService(
             await distributedCache.SetStringAsync(key, stringValue ?? string.Empty, options: new()
             {
                 SlidingExpiration = expiry,
-                AbsoluteExpiration = DateTime.Now.Add(expiry)
+                AbsoluteExpiration = DateTime.Now.AddDays(1)
             });
 
             return;
@@ -33,7 +33,7 @@ public class MemoryService(
         await distributedCache.SetStringAsync(key, stringValue, options: new() 
         {
             SlidingExpiration = expiry,
-            AbsoluteExpiration = DateTime.Now.Add(expiry)
+            AbsoluteExpiration = DateTime.Now.AddDays(1)
         });
     }
 }

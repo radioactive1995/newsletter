@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Infrastructure.Jobs;
 using Infrastructure.Persistance;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
@@ -13,8 +14,12 @@ public static class DependencyInjection
     {
         services.AddTransient<IArticleRepository, ArticleRepository>();
         services.AddTransient<ISubscriberRepository, SubscriberRepository>();
+        services.AddTransient<IEmailService, EmailService>();
 
         services.AddSingleton<IMemoryService, MemoryService>();
+        services.AddSingleton<IEventBus, InMemoryEventBus>();
+
+        services.AddHostedService<EventConsumerJob>();
 
         services.AddDbContextFactory<NewsletterContext>((provider, options) =>
         {

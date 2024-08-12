@@ -1,5 +1,4 @@
 ﻿using Application.Interfaces;
-using Domain.Articles;
 using Domain.Subscribers;
 using ErrorOr;
 using MediatR;
@@ -8,33 +7,55 @@ namespace Application.Subscribers;
 
 public static class SubscribeToNewsletter
 {
-    public record Query(string Email) : IRequest<ErrorOr<Response>>;
+    public record Command(string Email) : IRequest<ErrorOr<Response>>;
+
+    public record Event(string UserIpAddress, string Email) : INotification;
 
     public record Response();
 
-    public class QueryHandler(
+    public class CommandHandler(
         ICurrentUserService userService,
         IMemoryService memoryService,
-        ISubscriberRepository subscriberRepository) : IRequestHandler<Query, ErrorOr<Response>>
+        ISubscriberRepository subscriberRepository,
+        IEventBus eventBus) : IRequestHandler<Command, ErrorOr<Response>>
     {
-        public async Task<ErrorOr<Response>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var userIpAddress = userService.GetIpAddress() ?? string.Empty;
             var cooldownIsActive = await memoryService.DoesKeyExist(userIpAddress);
-
+            
             if (cooldownIsActive) return Error.Validation("SubscribeToNewsletter.userIpAddress", "Cannot process request, cooldown is active");
 
-            var subscriberExists = await subscriberRepository.DoesSubscriberExistWithEmail(request.Email);
+            var subscriberExists = await subscriberRepository.DoesSubscriberExistWithEmail(command.Email);
 
             if (subscriberExists) return Error.Conflict("SubscribeToNewsletter.subscriberExists", "Subscriber already exists");
 
-            var subcriber = Subscriber.CreateEntity(email: request.Email);
+            var subcriber = Subscriber.CreateEntity(email: command.Email);
 
             await subscriberRepository.AddSubscriber(subcriber);
 
-            await memoryService.StoreKeyValuePair(key: userIpAddress, value: "q", expiry: TimeSpan.FromMinutes(5));
+            await eventBus.PublishAsync(new Event(UserIpAddress: userIpAddress, Email: command.Email), cancellationToken);
 
             return new Response();
+        }
+    }
+
+    public static class EventHandler
+    {
+        public class ActivateCooldown(IMemoryService memoryService) : INotificationHandler<Event>
+        {
+            public async Task Handle(Event @event, CancellationToken cancellationToken)
+            {
+                await memoryService.StoreKeyValuePair(key: $"{nameof(ActivateCooldown)}:{@event.UserIpAddress}", value: nameof(ActivateCooldown), expiry: TimeSpan.FromHours(5));
+            }
+        }
+
+        public class SendEmailConfirmation(IEmailService emailService) : INotificationHandler<Event>
+        {
+            public async Task Handle(Event @event, CancellationToken cancellationToken)
+            {
+                await emailService.SendSubscriberConfirmationMail();
+            }
         }
     }
 }

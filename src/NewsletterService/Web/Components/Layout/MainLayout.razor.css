@@ -11,7 +11,7 @@ header {
 
 main {
     padding-top: 200px;
-    min-height: 1500px;
+    min-height: 125vh;
     min-width: 350px;
     margin: 0 auto;
     min-width: 350px;
@@ -20,8 +20,10 @@ main {
 }
 
 footer {
-    width: 100%;
-    min-width: 600px;
-    height: 200px;
+    position: absolute;
+    height: 80px;
     background-color: floralwhite;
+    bottom: 0;
+    left: 0;
+    width: 100%;
 }
