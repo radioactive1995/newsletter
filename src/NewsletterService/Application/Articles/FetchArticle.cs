@@ -17,7 +17,7 @@ public static class FetchArticle
         string Title,
         string MarkdownContent,
         string Author,
-        DateOnly PublishedDate);
+        string PublishedDate);
 
     public class QueryHandler(
         IArticleRepository articleRepository) : IRequestHandler<Query, Response?>
@@ -44,7 +44,7 @@ public static class FetchArticle
                 entity.Title,
                 entity.MarkdownContent,
                 entity.Author,
-                DateOnly.FromDateTime(entity.CreatedDate));
+                entity.CreatedDate.ToString("dd MMMM yyyy"));
         }
     }
 }

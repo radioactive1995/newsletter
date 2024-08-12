@@ -29,6 +29,8 @@
     </button>
 </form>
 
+<p>By submitting, you are giving constent for collecting personal data in accordance with our <a / href="privacy">privacy statement</a>.</p>
+
 @if ((!ShowLoading && SubmitResult.HasValue && ((SubmitResult.Value.IsError && SubmitResult.Value.FirstError.Type == ErrorType.Conflict) || !SubmitResult.Value.IsError)))
 {
     <div id="success-email"><h4>You are subscriped to the newsletter!</h4></div>
@@ -62,7 +64,7 @@ else if (!ShowLoading && SubmitResult.HasValue && SubmitResult.Value.IsError)
     private async Task Submit()
     {
         ShowLoading = true;
-        SubmitResult = await Mediator.Send(new SubscribeToNewsletter.Query(Email));
+        SubmitResult = await Mediator.Send(new SubscribeToNewsletter.Command(Email));
         ShowLoading = false;
     }
 }

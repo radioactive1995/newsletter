@@ -7,7 +7,7 @@
 
 @if (ArticleResponse != null)
 {
-    <p>@ArticleResponse.MarkdownContent, @ArticleResponse.PublishedDate</p>
+    <p>@ArticleResponse.Author, @ArticleResponse.PublishedDate</p>
     <div class="article-content article-color">
         <h1>@ArticleResponse.Title</h1>
         @(new MarkupString(Markdown.ToHtml(ArticleResponse.MarkdownContent)))

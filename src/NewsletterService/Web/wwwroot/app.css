@@ -53,12 +53,15 @@ body {
     background-color: #111144;
     color: floralwhite;
     display: block;
-    height: auto;
+    position: relative;
+    width: 100%;
+    min-height: 100% !important;
 }
+
 
 html {
     display: block;
-    width: 100vw;
+    height: 100% !important;
 }
 
 pre {
