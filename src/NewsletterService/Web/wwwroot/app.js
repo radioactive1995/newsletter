@@ -1,10 +1,5 @@
-﻿window.toggleLoading = (show) => {
-    const loadingDiv = document.getElementById('loading');
-    if (loadingDiv) {
-        if (show) {
-            loadingDiv.classList.add('loader');
-        } else {
-            loadingDiv.classList.remove('loader');
-        }
-    }
-};
+﻿document.addEventListener("DOMContentLoaded", function () {
+    const mainElement = document.querySelector("main");
+    const mainWidth = mainElement.offsetWidth;
+    document.documentElement.style.setProperty('--main-width', `${mainWidth}px`);
+});

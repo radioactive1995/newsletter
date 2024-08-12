@@ -12,17 +12,17 @@ header {
 div {
     position: relative;
     overflow-x: hidden;
+    min-height: 100vh;
 }
 
 
 main {
     padding: 200px 25px 200px 25px;
-    min-height: 125vh;
     min-width: 350px;
     margin: 0 auto;
     min-width: 350px;
     max-width: 1100px;
-    height: auto;
+    height: 450% !important;
 }
 
 footer {
@@ -32,7 +32,7 @@ footer {
     bottom: 0;
     left: 0;
     width: 100%;
-
+    bottom: calc(-15vh)
 }
 
 @media screen and (max-width: 640px) {
