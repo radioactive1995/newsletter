@@ -2,6 +2,7 @@
 using Domain.Common;
 using Domain.Subscribers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Reflection;
 
 namespace Infrastructure.Persistance;
@@ -56,5 +57,22 @@ public class NewsletterContext : DbContext
                 entitetBygger.Property(nameof(Entity<int>.Version)).IsRowVersion();
             }
         }
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var timestamp = DateTime.Now;
+        foreach (var entry in ChangeTracker.Entries<AuditEntity>()
+            .Where(entry => entry.State == EntityState.Added || entry.State == EntityState.Modified))
+        {
+            entry.Entity.EditedDate = timestamp;
+
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedDate = timestamp;
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
     }
 }
