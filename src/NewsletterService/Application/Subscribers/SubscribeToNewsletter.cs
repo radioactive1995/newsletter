@@ -61,7 +61,8 @@ public static class SubscribeToNewsletter
         {
             public async Task Handle(Event @event, CancellationToken cancellationToken)
             {
-                await emailService.SendSubscriberConfirmationMail();
+                await Task.CompletedTask;
+                //await emailService.SendSubscriberConfirmationMail();
             }
         }
     }

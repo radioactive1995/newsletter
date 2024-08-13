@@ -1,6 +1,3 @@
-
-# Dapr Introduction and Service-to-Service Invocation Part I
-
 When working with distributed systems, there are many factors to consider, including the environment you are operating in, ensuring the relevant configurations are up and running, and maintaining communication between the services and components. One common pitfall in developing a distributed system is not having a smart way to manage all the key-value pair configurations used for service-to-service communication, database connections, and other integrations. This challenge is more severe when you need to differentiate between various environment configurations and maintain each one of them.
 
 Another difficulty in working with such systems arises when using different vendors' SDKs to integrate with their resources. This approach often results in a strong coupling to that specific infrastructure within your code, which might not be desirable, particularly when moving between local development environments and staging environments in the cloud.

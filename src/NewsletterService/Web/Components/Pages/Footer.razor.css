@@ -1,8 +1,19 @@
-﻿footer {
-    position: absolute;
-    height: 80px;
-    background-color: floralwhite;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+﻿a {
+    color: unset;
+}
+
+a * {
+    color: #111144;
+    font-size: xx-large;
+    margin: 0 2px 0 2px;
+}
+
+a *:hover {
+    color: #111133;
+}
+
+p {
+    margin-bottom: 5px;
+    margin-top: 10px;
+    font-size: x-small;
 }
