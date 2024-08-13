@@ -29,7 +29,7 @@ public static class SubscribeToNewsletter
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var userIpAddress = userService.GetIpAddress() ?? string.Empty;
-            var cooldownIsActive = await cacheService.DoesKeyExist(userIpAddress);
+            var cooldownIsActive = await cacheService.DoesKeyExist($"{nameof(EventHandler.ActivateCooldown)}:{userIpAddress}");
             
             if (cooldownIsActive) return Error.Validation("SubscribeToNewsletter.userIpAddress", "Cannot process request, cooldown is active");
 
