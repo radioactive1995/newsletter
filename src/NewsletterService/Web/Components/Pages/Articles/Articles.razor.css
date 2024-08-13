@@ -38,6 +38,9 @@
 .articles li a {
     color: unset;
     text-decoration: none;
+    height: 100%;
+    width: 100%;
+    display: block;
 }
 
 .articles li:hover {
