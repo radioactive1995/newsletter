@@ -6,6 +6,7 @@ env:
   SQL_DATABASE_NAME: newsletter-db  # Azure SQL Database name
   SQL_USER: newsletterAdmin  # Azure SQL Server username
   SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}  # Azure SQL Server password, stored as a secret
+  REPO: radioactive1995/newsletter
 
 on:
   push:
