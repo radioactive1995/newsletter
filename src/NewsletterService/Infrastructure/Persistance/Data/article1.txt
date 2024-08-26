@@ -35,21 +35,19 @@ Dapr components are declared in YAML configuration files. These declarations spe
 Example Component Declaration
 Below is an example of a YAML file that configures a Redis state store component for use by the Dapr state management building block:
 
-```yaml
-apiVersion: dapr.io/v1alpha1
-kind: Component
-metadata:
-  name: statestore
-  namespace: default
-spec:
-  type: state.redis
-  version: v1
-  metadata:
-  - name: redisHost
-    value: "localhost:6379"
-  - name: redisPassword
-    value: ""
-```
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(121, 192, 255); font-weight: 400;">apiVersion:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">dapr.io/v1alpha1</span>
+<span style="color: rgb(121, 192, 255); font-weight: 400;">kind:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">Component</span>
+<span style="color: rgb(121, 192, 255); font-weight: 400;">metadata:</span>
+  <span style="color: rgb(121, 192, 255); font-weight: 400;">name:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">statestore</span>
+  <span style="color: rgb(121, 192, 255); font-weight: 400;">namespace:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">default</span>
+<span style="color: rgb(121, 192, 255); font-weight: 400;">spec:</span>
+  <span style="color: rgb(121, 192, 255); font-weight: 400;">type:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">state.redis</span>
+  <span style="color: rgb(121, 192, 255); font-weight: 400;">version:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">v1</span>
+  <span style="color: rgb(121, 192, 255); font-weight: 400;">metadata:</span>
+  <span style="color: rgb(242, 204, 96); font-weight: 400;">-</span> <span style="color: rgb(121, 192, 255); font-weight: 400;">name:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">redisHost</span>
+    <span style="color: rgb(121, 192, 255); font-weight: 400;">value:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">"localhost:6379"</span>
+  <span style="color: rgb(242, 204, 96); font-weight: 400;">-</span> <span style="color: rgb(121, 192, 255); font-weight: 400;">name:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">redisPassword</span>
+    <span style="color: rgb(121, 192, 255); font-weight: 400;">value:</span> <span style="color: rgb(165, 214, 255); font-weight: 400;">""</span></pre>
 In this example, the component is given a name (statestore) and specifies the type (state.redis) and version (v1). The metadata section contains key-value pairs needed to configure the Redis connection.
 
 
@@ -94,83 +92,76 @@ By using Dapr's service-to-service invocation building block, developers can bri
 
 We start the dapr sidecars in self-hosted mode, and relative to where the csprojects  are located in the file system, we create two ps.1 scripts which will tell the dapr CLI to start both the dotnet application, sidecar and bind it to services. Pay attention to --resources-path parameter, which tells where the dapr components are stored.
 
-```powershell
-dapr run --app-id serviceA --app-port 5203 --resources-path ..\dapr.components\ -- dotnet run
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; ">dapr run <span style="color: rgb(121, 192, 255); font-weight: 400;">--app-id</span> serviceA <span style="color: rgb(121, 192, 255); font-weight: 400;">--app-port</span> <span style="color: rgb(121, 192, 255); font-weight: 400;">5203</span> <span style="color: rgb(121, 192, 255); font-weight: 400;">--resources-path</span> ..\dapr.components\ <span style="color: rgb(121, 192, 255); font-weight: 400;">--</span> dotnet run
 
-dapr run --app-id serviceB --app-port 5204 --resources-path ..\dapr.components\ -- dotnet run
-```
+dapr run <span style="color: rgb(121, 192, 255); font-weight: 400;">--app-id</span> serviceB <span style="color: rgb(121, 192, 255); font-weight: 400;">--app-port</span> <span style="color: rgb(121, 192, 255); font-weight: 400;">5204</span> <span style="color: rgb(121, 192, 255); font-weight: 400;">--resources-path</span> ..\dapr.components\ <span style="color: rgb(121, 192, 255); font-weight: 400;">--</span> dotnet run</pre>
 
 You need to install nuget package **Dapr.AspNetCore**.
 
 This library will provide an extension method to IServiceCollection, you will need to configure Dapr Dependency Injection as following:
 
-```csharp
-builder.Services.AddDaprClient();
-```
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; ">builder.Services.AddDaprClient();
+</pre>
 
 The code below for ServiceA showcases multiple ways to archieve the same service invocation capability.
 
-```csharp
-using Dapr.Client;
-using Microsoft.AspNetCore.Mvc;
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(255, 123, 114); font-weight: 400;">using</span> Dapr.Client;
+<span style="color: rgb(255, 123, 114); font-weight: 400;">using</span> Microsoft.AspNetCore.Mvc;
 
-namespace dapr.serviceA;
+<span style="color: rgb(255, 123, 114); font-weight: 400;">namespace</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">dapr.serviceA</span>;
 
-[Route("/")]
-public class ServiceAController(
-    DaprClient client) : ControllerBase
+[<span style="color: rgb(121, 192, 255); font-weight: 400;">Route(<span style="color: rgb(165, 214, 255); font-weight: 400;">"/"</span>)</span>]
+<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">class</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">ServiceAController</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">
+    DaprClient client</span>) : ControllerBase</span>
 {
 
-    [HttpGet("/forecast1")]
-    public async Task<IActionResult> GetForecast()
+    [<span style="color: rgb(121, 192, 255); font-weight: 400;">HttpGet(<span style="color: rgb(165, 214, 255); font-weight: 400;">"/forecast1"</span>)</span>]
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">Task</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">IActionResult</span>&gt; <span style="color: rgb(210, 168, 255); font-weight: 400;">GetForecast</span>()</span>
     {
-        // Several overloads of InvokeMethodAsync, and ability to strongly bind contracts.
-        //Response WITHOUT request payload
-        await client.InvokeMethodAsync<WeatherForecast[]>(httpMethod: HttpMethod.Get, appId: "serviceB", methodName: "forecast");
+        <span style="color: rgb(139, 148, 158); font-weight: 400;">// Several overloads of InvokeMethodAsync, and ability to strongly bind contracts.</span>
+        <span style="color: rgb(139, 148, 158); font-weight: 400;">//Response WITHOUT request payload</span>
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> client.InvokeMethodAsync&lt;WeatherForecast[]&gt;(httpMethod: HttpMethod.Get, appId: <span style="color: rgb(165, 214, 255); font-weight: 400;">"serviceB"</span>, methodName: <span style="color: rgb(165, 214, 255); font-weight: 400;">"forecast"</span>);
 
-        //Response with request payload
-        await client.InvokeMethodAsync<int, WeatherForecast[]>(httpMethod: HttpMethod.Post, appId: "serviceB", data: 100, methodName: "forecast");
+        <span style="color: rgb(139, 148, 158); font-weight: 400;">//Response with request payload</span>
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> client.InvokeMethodAsync&lt;<span style="color: rgb(255, 166, 87); font-weight: 400;">int</span>, WeatherForecast[]&gt;(httpMethod: HttpMethod.Post, appId: <span style="color: rgb(165, 214, 255); font-weight: 400;">"serviceB"</span>, data: <span style="color: rgb(121, 192, 255); font-weight: 400;">100</span>, methodName: <span style="color: rgb(165, 214, 255); font-weight: 400;">"forecast"</span>);
 
-        //Either response contract will be returned in case of valid HTTP status, or an exception will be raised in above methods
-        //Alternative is to use InvokeMethodWithResponseAsync, granular control in case of failure
-        HttpRequestMessage request = client.CreateInvokeMethodRequest(appId: "serviceB", methodName: "forecast2");
+        <span style="color: rgb(139, 148, 158); font-weight: 400;">//Either response contract will be returned in case of valid HTTP status, or an exception will be raised in above methods</span>
+        <span style="color: rgb(139, 148, 158); font-weight: 400;">//Alternative is to use InvokeMethodWithResponseAsync, granular control in case of failure</span>
+        HttpRequestMessage request = client.CreateInvokeMethodRequest(appId: <span style="color: rgb(165, 214, 255); font-weight: 400;">"serviceB"</span>, methodName: <span style="color: rgb(165, 214, 255); font-weight: 400;">"forecast2"</span>);
 
-        HttpResponseMessage response = await client.InvokeMethodWithResponseAsync(request);
+        HttpResponseMessage response = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> client.InvokeMethodWithResponseAsync(request);
     }
-}
-```
+}</pre>
 
 The dapr sidecar will discover the appropriate endpoint to call in ServiceB as long as the relative route path of the endpoint matches with the methodName parameter passed above.
 
-```csharp
-using Dapr.Client;
-using Microsoft.AspNetCore.Mvc;
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(255, 123, 114); font-weight: 400;">using</span> Dapr.Client;
+<span style="color: rgb(255, 123, 114); font-weight: 400;">using</span> Microsoft.AspNetCore.Mvc;
 
-namespace dapr.serviceB;
+<span style="color: rgb(255, 123, 114); font-weight: 400;">namespace</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">dapr.serviceB</span>;
 
-[Route("/")]
-public class ServiceBController(
-    DaprClient client) : ControllerBase
+[<span style="color: rgb(121, 192, 255); font-weight: 400;">Route(<span style="color: rgb(165, 214, 255); font-weight: 400;">"/"</span>)</span>]
+<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">class</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">ServiceBController</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">
+    DaprClient client</span>) : ControllerBase</span>
 {
-    private string[] summaries = new[]
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">private</span> <span style="color: rgb(255, 166, 87); font-weight: 400;">string</span>[] summaries = <span style="color: rgb(255, 123, 114); font-weight: 400;">new</span>[]
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild"
+            <span style="color: rgb(165, 214, 255); font-weight: 400;">"Freezing"</span>, <span style="color: rgb(165, 214, 255); font-weight: 400;">"Bracing"</span>, <span style="color: rgb(165, 214, 255); font-weight: 400;">"Chilly"</span>, <span style="color: rgb(165, 214, 255); font-weight: 400;">"Cool"</span>, <span style="color: rgb(165, 214, 255); font-weight: 400;">"Mild"</span>
         };
 
-    [HttpGet("/forecast2")]
-    public async Task<IActionResult> GetForecast()
+    [<span style="color: rgb(121, 192, 255); font-weight: 400;">HttpGet(<span style="color: rgb(165, 214, 255); font-weight: 400;">"/forecast2"</span>)</span>]
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> Task&lt;IActionResult&gt; <span style="color: rgb(210, 168, 255); font-weight: 400;">GetForecast</span>()</span>
     {
-        return Ok(Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> Ok(Enumerable.Range(<span style="color: rgb(121, 192, 255); font-weight: 400;">1</span>, <span style="color: rgb(121, 192, 255); font-weight: 400;">5</span>).Select(index =&gt;
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">new</span> WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
+            Random.Shared.Next(<span style="color: rgb(121, 192, 255); font-weight: 400;">-20</span>, <span style="color: rgb(121, 192, 255); font-weight: 400;">55</span>),
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray());
     }
-}
-```
+}</pre>
 
 Please refer to the official Dapr documentation on how to start using it with different hosting models:
 

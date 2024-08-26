@@ -3,13 +3,13 @@
 }
 
 a * {
-    color: #111144;
+    color: #FAFAFA;
     font-size: xx-large;
     margin: 0 2px 0 2px;
 }
 
 a *:hover {
-    color: #111133;
+    text-decoration: underline;
 }
 
 p {

@@ -1,10 +1,10 @@
 header {
     width: 100%;
     height: 80px;
-    background-color: floralwhite;
+    background-color: #1E3A5F;
     font-weight: 700;
     font-size: large;
-    color: floralwhite;
+    color: #FAFAFA;
     position: fixed;
     z-index: 999 !important;
 }
@@ -29,12 +29,12 @@ main {
 footer {
     position: absolute;
     height: 80px;
-    background-color: floralwhite;
+    background-color: #1E3A5F;
+    color: #FAFAFA;
     bottom: 0;
     left: 0;
     width: 100%;
     bottom: calc(-15vh);
-    color: #111144;
     font-weight: 700;
     display: flex;
     flex-direction: column;

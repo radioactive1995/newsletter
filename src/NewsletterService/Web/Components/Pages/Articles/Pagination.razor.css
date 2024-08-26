@@ -1,10 +1,10 @@
 ﻿.pagination {
-    margin-bottom: 60px;
+    margin: 0 auto 60px auto;
     display: flex;
     list-style-type: none;
     padding: 0;
     transform: scale(2);
-    width: 100%;
+    width: 30%;
     display: block;
     justify-content: center;
     text-align: center;
@@ -13,26 +13,26 @@
 .pagination button {
 padding: 8px 16px;
 text-decoration: none;
-color: floralwhite;
 margin: 0 2px;
 border: 0;
-background-color: #111144;
+background-color: #E6F2FA;
+color: #2D2D2D;
 }
 
 .pagination button:hover:not(.active) {
-    background-color: #111144;
+    background-color: #E6F2FA;
 }
 
 .pagination button.active {
-    background-color: #111144;
-    color: floralwhite;
+    background-color: #E6F2FA;
+    color: #2D2D2D;
     border: 0;
 }
 
 .pagination     .disabled {
     pointer-events: none;
-    color: #111144;
     border: 0;
+    opacity: 0;
 }
 
 .pagination .ellipsis {

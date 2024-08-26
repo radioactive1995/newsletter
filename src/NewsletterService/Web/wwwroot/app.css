@@ -1,5 +1,5 @@
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Helvetica Neue', sans-serif;
 }
 
 a, .btn-link {
@@ -50,8 +50,8 @@ h1:focus {
     border-color: #929292;
 }
 body {
-    background-color: #111144;
-    color: floralwhite;
+    background-color: #E6F2FA;
+    color: #2D2D2D;
     display: block;
     position: relative;
     width: 100%;
@@ -67,9 +67,11 @@ html {
 }
 
 pre {
-    padding: 10px;
-    color: #111144 !important;
-    border: 3px ridge antiquewhite !important;
-    background-color: #e5e1d8 !important;
-    font-weight: 900;
+    padding: 10px !important;
 }
+
+header, header * {
+    background-color: #1E3A5F;
+    color: #FAFAFA;
+}
+

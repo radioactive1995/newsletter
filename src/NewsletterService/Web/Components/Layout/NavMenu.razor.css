@@ -17,17 +17,15 @@ ul {
 
 
 a {
-    color: #111144;
     text-decoration: none;
     height: 100%;
     width: 100%;
     padding: 7px;
-    border: 1px solid black;
     border-radius: 3px;
     opacity: 1 !important;
 }
 
 a:hover {
-    background-color: #111144;
-    color: floralwhite;
+    text-decoration: underline;
+    color:  #FAFAFA;
 }

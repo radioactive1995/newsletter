@@ -33,13 +33,13 @@ public static class SubscribeToNewsletter
             //
             //if (cooldownIsActive) return Error.Validation("SubscribeToNewsletter.userIpAddress", "Cannot process request, cooldown is active");
 
-            var subscriberExists = await subscriberRepository.DoesSubscriberExistWithEmail(command.Email);
-
-            if (subscriberExists) return Error.Conflict("SubscribeToNewsletter.subscriberExists", "Subscriber already exists");
-
-            var subcriber = Subscriber.CreateEntity(email: command.Email);
-
-            await subscriberRepository.AddSubscriber(subcriber);
+            //var subscriberExists = await subscriberRepository.DoesSubscriberExistWithEmail(command.Email);
+            //
+            //if (subscriberExists) return Error.Conflict("SubscribeToNewsletter.subscriberExists", "Subscriber already exists");
+            //
+            //var subcriber = Subscriber.CreateEntity(email: command.Email);
+            //
+            //await subscriberRepository.AddSubscriber(subcriber);
 
             await eventBus.PublishAsync(new Event(UserIpAddress: userIpAddress, Email: command.Email), cancellationToken);
 
@@ -63,6 +63,20 @@ public static class SubscribeToNewsletter
             {
                 await Task.CompletedTask;
                 //await emailService.SendSubscriberConfirmationMail();
+            }
+        }
+
+        public class CreateSubscriber(ISubscriberRepository subscriberRepository) : INotificationHandler<Event>
+        {
+            public async Task Handle(Event @event, CancellationToken cancellationToken)
+            {
+                var subscriberExists = await subscriberRepository.DoesSubscriberExistWithEmail(@event.Email);
+
+                if (subscriberExists) return;
+
+                var subcriber = Subscriber.CreateEntity(email: @event.Email);
+
+                await subscriberRepository.AddSubscriber(subcriber);
             }
         }
     }

@@ -3,7 +3,8 @@
 }
 
 .articles-double {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: 100%;
 }
 
 .articles-multiple {
@@ -16,36 +17,32 @@
     display: grid;
     gap: 10px;
     grid-auto-rows: minmax(100px, auto);
-    overflow: hidden;
+    overflow: auto;
     gap: 60px;
     margin: 0 auto;
-    overflow: hidden;
     list-style-type: none;
     padding: 0;
+    width: 100%;
+    height: auto;
 }
 
 .articles li {
     justify-content: center;
     border-radius: 4px;
-    overflow: hidden;
-    background-color: floralwhite;
-    color: #111144;
-    height: 120px;
-    overflow: auto;
-    overflow-x: hidden;
+    overflow: hidden !important;
+    height: auto;
+    display: inherit
 }
 
 .articles li a {
     color: unset;
     text-decoration: none;
-    height: 100%;
-    width: 100%;
-    display: block;
+    display: inline;
+    width: auto;
 }
 
 .articles li:hover {
-    background-color: #111133;
-    color: floralwhite;
+    text-decoration: solid underline;
 }
 
 .articles li img {
@@ -59,7 +56,6 @@
 .articles li h4 {
     padding: 10px;
     text-align: center;
-    font-weight: 700;
 }
 
 @media screen and (max-width: 640px) {

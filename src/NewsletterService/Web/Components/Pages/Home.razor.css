@@ -40,15 +40,16 @@
     width: 75%;
     padding: 4px;
     color: #111144;
-    background-color: floralwhite;
+    background-color: #FFFFFF;
     border-radius: 3px;
 }
 
 #email-submit {
     width: 25%;
     padding: 4px;
-    background-color: floralwhite;
-    border: 1px solid black;
+    background-color: #1E3A5F;
+    color: #FAFAFA;
+    border: 1px solid #1E3A5F;
     border-radius: 3px;
     font-weight: 700;
     font-size: large;
@@ -59,8 +60,8 @@
 }
 
 #email-submit:hover {
-    background-color: #111133;
-    color: floralwhite;
+    background-color: #E6F2FA;
+    color: #2B3A67;
 }
 
 /* HTML: <div class="loader"></div> */
