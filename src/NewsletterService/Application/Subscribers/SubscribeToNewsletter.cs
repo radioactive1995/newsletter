@@ -29,9 +29,9 @@ public static class SubscribeToNewsletter
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var userIpAddress = userService.GetIpAddress() ?? string.Empty;
-            //var cooldownIsActive = await cacheService.DoesKeyExist($"{nameof(EventHandler.ActivateCooldown)}:{userIpAddress}");
-            //
-            //if (cooldownIsActive) return Error.Validation("SubscribeToNewsletter.userIpAddress", "Cannot process request, cooldown is active");
+            var cooldownIsActive = await cacheService.DoesKeyExist($"{nameof(EventHandler.ActivateCooldown)}:{userIpAddress}");
+            
+            if (cooldownIsActive) return Error.Validation("SubscribeToNewsletter.userIpAddress", "Cannot process request, cooldown is active");
 
             //var subscriberExists = await subscriberRepository.DoesSubscriberExistWithEmail(command.Email);
             //
@@ -53,7 +53,7 @@ public static class SubscribeToNewsletter
         {
             public async Task Handle(Event @event, CancellationToken cancellationToken)
             {
-                await cacheService.AddCache(key: $"{nameof(ActivateCooldown)}:{@event.UserIpAddress}", value: nameof(ActivateCooldown), expiry: TimeSpan.FromHours(5));
+                await cacheService.AddCache(key: $"{nameof(ActivateCooldown)}:{@event.UserIpAddress}", value: nameof(ActivateCooldown), expiry: TimeSpan.FromSeconds(10));
             }
         }
 
