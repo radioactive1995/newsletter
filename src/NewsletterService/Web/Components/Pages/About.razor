@@ -1,4 +1,6 @@
 ﻿@page "/about"
+@inject NavigationManager Navigation
+
 
 <PageTitle>Home</PageTitle>
 
@@ -11,3 +13,11 @@
     <hr />
     What drives me is the challenge of creating solutions that align with both technical requirements and business goals. I enjoy diving into complex problems, identifying bottlenecks, and collaborating with cross-disciplinary teams to deliver high-quality software that meets the needs of the end-users.
 </h4>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.CompletedTask;
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

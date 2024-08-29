@@ -1,0 +1,38 @@
+﻿@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+@if (UserContext == null)
+{
+    
+}
+
+else if (UserContext.HasValue && UserContext.Value.ErrorsOrEmptyList.Any(e => e.Type == ErrorType.Unauthorized))
+{
+    <li><a href="#" @onclick="RedirectToLogin">Login</a></li>
+}
+
+else
+{
+    <li>Welcome @UserContext.Value.Value.UserName ?? @UserContext.Value.Value.Email!</li>
+    <li><a href="#" @onclick="RedirectToSignOut">Sign out</a></li>
+}
+
+
+@code {
+    public ErrorOr<GetUserContext.Response>? UserContext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserContext = await Mediator.Send(new GetUserContext.Query());
+    }
+
+    private void RedirectToLogin()
+    {
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+
+    private void RedirectToSignOut()
+    {
+        Navigation.NavigateTo("/signout", forceLoad: true);
+    }
+}

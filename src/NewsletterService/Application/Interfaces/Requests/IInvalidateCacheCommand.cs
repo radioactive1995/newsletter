@@ -2,7 +2,7 @@
 
 namespace Application.Interfaces.Requests;
 
-public interface IInvalidateCacheCommand<TResponse> : IRequest<TResponse>
+public interface IInvalidateCacheCommand<out TResponse> : IRequest<TResponse>
 {
     public string[] InvalidateKeys { get; }
 }

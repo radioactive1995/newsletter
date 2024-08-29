@@ -31,8 +31,8 @@ public class NewsletterContext : DbContext
                 Title = "Dapr Introduction and Service-to-Service Invocation Part I",
                 MarkdownContent = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Persistance", "Data", "article1.txt")),
                 Author = "Sultan Dzjumajev",
-                CreatedDate = new DateTime(year: 2024, month: 8, day: 10),
-                EditedDate = new DateTime(year: 2024, month: 8, day: 10),
+                CreatedDate = new DateTime(year: 2024, month: 8, day: 10, hour: default, minute: default, second: default, kind: DateTimeKind.Utc),
+                EditedDate = new DateTime(year: 2024, month: 8, day: 10, hour: default, minute: default, second: default, kind: DateTimeKind.Utc),
             });
         });
 
