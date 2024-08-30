@@ -7,6 +7,7 @@ header {
     color: #FAFAFA;
     position: fixed;
     z-index: 999 !important;
+    overflow-x: auto;
 }
 
 div {

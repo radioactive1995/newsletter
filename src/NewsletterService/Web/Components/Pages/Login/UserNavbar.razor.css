@@ -1,0 +1,26 @@
+﻿
+#user-info {
+    color: #2D2D2D !important;
+}
+
+
+@media screen and (max-width: 700px) {
+    #user-info {
+        color: red !important;
+        display: none !important;
+    }
+}
+
+a {
+    text-decoration: none;
+    height: 100%;
+    width: 100%;
+    padding: 7px;
+    border-radius: 3px;
+    opacity: 1 !important;
+}
+
+    a:hover {
+        text-decoration: underline;
+        color: #FAFAFA;
+    }

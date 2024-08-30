@@ -58,7 +58,7 @@ else if (!ShowLoading && SubmitResult.HasValue && SubmitResult.Value.IsError)
     public string Email { get; set; }
     private bool ShowLoading { get; set; }
     public FetchSubscribersCount.Response? SubscribersCountResult { get; set; }
-    public ErrorOr<SubscribeToNewsletter.Response>? SubmitResult { get; set; }
+    public ErrorOr<Unit>? SubmitResult { get; set; }
 
 
     private async Task Submit()
