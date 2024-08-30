@@ -19,7 +19,6 @@ public class IdentityProviderService(IHttpContextAccessor accessor) : IIdentityP
         if (accessor.HttpContext == null) throw new InvalidOperationException("HttpContext is null");
 
         await accessor.HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
-        await accessor.HttpContext.SignOutAsync("passwordreset");
         await accessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, properties: new() { RedirectUri = "/"});
     }
 }

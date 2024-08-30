@@ -51,7 +51,7 @@ public static class DependencyInjection
             options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
         }).AddCookie(options =>
         {
-            options.Cookie.Name = "NewsletterCookie";
+            options.Cookie.Name = IdentityProviderConstants.COOKIE_NAME;
             options.Cookie.SameSite = SameSiteMode.Lax;
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 
@@ -66,26 +66,38 @@ public static class DependencyInjection
 
         }).AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
         {
-            options.Authority = "https://dzhumaev.b2clogin.com/c2bc9021-60ee-4a94-8474-a8536a17baf4/v2.0/";
+            options.Authority = identityConfig.Authority;
             options.ClientId = identityConfig.ClientId;
             options.ClientSecret = identityConfig.ClientSecret;
-            options.ResponseType = "code";
-            options.Scope.Add("openid");
-            options.Scope.Add("profile");
-            options.Scope.Add("email");
-            options.Scope.Add("https://dzhumaev.onmicrosoft.com/20d4be3b-5113-474c-8bec-09f482bf7ce4/Newsletter.ReadWrite");
+            options.ResponseType = identityConfig.ResponseType;
+
+            foreach (var scope in identityConfig.Scopes)
+            {
+                options.Scope.Add(scope);
+            }
+
             options.SaveTokens = true;
             options.GetClaimsFromUserInfoEndpoint = true;
-            options.TokenValidationParameters.NameClaimType = "name";
-            options.TokenValidationParameters.RoleClaimType = "role";
-            options.MetadataAddress = "https://dzhumaev.b2clogin.com/dzhumaev.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=b2c_1_dzhumaev_flow";
-            options.CallbackPath = "/auth/callback"; // This is the default; you can customize it if needed
+            options.MetadataAddress = identityConfig.SignInMetadataAddress;
+            options.CallbackPath = IdentityProviderConstants.LOGIN_CALLBACK;
+            options.SignedOutCallbackPath = IdentityProviderConstants.SIGNOUT_CALLBACK;
 
-            // Define the URL to redirect to after logout
-            options.SignedOutCallbackPath = "/signout/callback"; // Customize this as needed
+            options.Events = new OpenIdConnectEvents
+            {
+                OnRemoteFailure = context =>
+                {
+                    // Check if the error is due to the user canceling the self-asserted information process
+                    if (context.Failure != null &&
+                        context.Failure.Message.Contains(IdentityProviderConstants.CANCELLED_OIDC_ERROR_CODE))
+                    {
+                        // Redirect the user to the home page
+                        context.Response.Redirect("/");
+                        context.HandleResponse(); // Prevent further processing
+                    }
 
-            // Optionally, set the PostLogoutRedirectUri if you need a specific URL after logout
-            //options.SignedOutRedirectUri = "/";
+                    return Task.CompletedTask;
+                }
+            };
         });
 
 

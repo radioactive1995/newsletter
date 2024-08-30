@@ -18,8 +18,8 @@ public class CurrentUserService(
 
         return new UserInformationDto(
             accessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier),
-            accessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name),
-            accessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email)
+            accessor.HttpContext?.User.FindFirstValue("name"),
+            accessor.HttpContext?.User.FindFirstValue("emails")
         );
     }
 }

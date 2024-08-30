@@ -1,19 +1,14 @@
 ﻿@inject IMediator Mediator
 @inject NavigationManager Navigation
 
-@if (UserContext == null)
-{
-    
-}
-
-else if (UserContext.HasValue && UserContext.Value.ErrorsOrEmptyList.Any(e => e.Type == ErrorType.Unauthorized))
+@if (UserContext.HasValue && UserContext.Value.ErrorsOrEmptyList.Any(e => e.Type == ErrorType.Unauthorized))
 {
     <li><a href="#" @onclick="RedirectToLogin">Login</a></li>
 }
 
-else
+else if (UserContext.HasValue)
 {
-    <li>Welcome @UserContext.Value.Value.UserName ?? @UserContext.Value.Value.Email!</li>
+    <li style="max-width: 250px"><span id="user-info" style="color: #E6F2FA; overflow-x: auto; display: block;">@UserContext.Value.Value.Email</span></li>
     <li><a href="#" @onclick="RedirectToSignOut">Sign out</a></li>
 }
 
