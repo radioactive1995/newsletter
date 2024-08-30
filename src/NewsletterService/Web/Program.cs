@@ -14,7 +14,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services
-    .AddInfrastructure()
+    .AddInfrastructure(builder.Configuration)
     .AddApplication();
 
 builder.Services.AddHttpContextAccessor();

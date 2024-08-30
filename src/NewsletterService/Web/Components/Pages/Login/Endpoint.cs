@@ -13,8 +13,10 @@ public class Endpoint : IEndpoint
             await mediator.Send(new UserLogin.Command());
         });
 
-        endpoints.MapGet("/signout", async (IMediator mediator) =>
+        endpoints.MapGet("/signout", async (IMediator mediator, HttpContext context) =>
         {
+            var user = context.User;
+            Console.WriteLine(user.Identity?.Name);
             await mediator.Send(new UserSignOut.Command());
         }).RequireAuthorization();
     }

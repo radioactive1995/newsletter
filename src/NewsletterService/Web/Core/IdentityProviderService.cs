@@ -14,10 +14,12 @@ public class IdentityProviderService(IHttpContextAccessor accessor) : IIdentityP
         return accessor.HttpContext.ChallengeAsync(scheme: OpenIdConnectDefaults.AuthenticationScheme, properties: new() { RedirectUri = "/" });
     }
 
-    public Task Signout()
+    public async Task Signout()
     {
         if (accessor.HttpContext == null) throw new InvalidOperationException("HttpContext is null");
 
-        return accessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await accessor.HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+        await accessor.HttpContext.SignOutAsync("passwordreset");
+        await accessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme, properties: new() { RedirectUri = "/"});
     }
 }
