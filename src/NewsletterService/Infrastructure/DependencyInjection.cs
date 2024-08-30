@@ -34,8 +34,15 @@ public static class DependencyInjection
 
             var connectionString = Environment.GetEnvironmentVariable("SQLCONNSTR_DefaultConnection")
                                ?? configuration.GetConnectionString("DefaultConnection");
+
             
-            options.UseSqlServer(connectionString);
+            options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 15,
+                    maxRetryDelay: TimeSpan.FromMinutes(1), 
+                    errorNumbersToAdd: null);
+            });
         });
 
         services.AddDistributedMemoryCache();
