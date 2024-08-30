@@ -40,8 +40,8 @@ public static class DependencyInjection
             {
                 sqlOptions.EnableRetryOnFailure(
                     maxRetryCount: 15,
-                    maxRetryDelay: TimeSpan.FromMinutes(1), 
-                    errorNumbersToAdd: null);
+                    maxRetryDelay: TimeSpan.FromMinutes(1),
+                    errorNumbersToAdd: [ 40613 ]);
             });
         });
 
