@@ -30,9 +30,19 @@ public class NewsletterContext : DbContext
                 Id = 1,
                 Title = "Dapr Introduction and Service-to-Service Invocation Part I",
                 MarkdownContent = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Persistance", "Data", "article1.txt")),
-                Author = "Sultan Dzjumajev",
+                Author = "Sultan Dzhumaev",
                 CreatedDate = new DateTime(year: 2024, month: 8, day: 10, hour: default, minute: default, second: default, kind: DateTimeKind.Utc),
                 EditedDate = new DateTime(year: 2024, month: 8, day: 10, hour: default, minute: default, second: default, kind: DateTimeKind.Utc),
+            });
+
+            entity.HasData(new Article()
+            {
+                Id = 2,
+                Title = "Implementing the Cache-Aside Pattern with MediatR",
+                MarkdownContent = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Persistance", "Data", "article2.txt")),
+                Author = "Sultan Dzhumaev",
+                CreatedDate = new DateTime(year: 2024, month: 8, day: 31, hour: default, minute: default, second: default, kind: DateTimeKind.Utc),
+                EditedDate = new DateTime(year: 2024, month: 8, day: 31, hour: default, minute: default, second: default, kind: DateTimeKind.Utc),
             });
         });
 

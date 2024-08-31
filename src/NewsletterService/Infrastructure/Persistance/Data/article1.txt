@@ -6,7 +6,7 @@ This is where Dapr comes into play, addressing these problems and more.
 
 Dapr is a runtime application designed to be a handy tool for distributed systems, helping achieve quality attributes like resilience, maintainability, and scalability. It accomplishes this by offering "building blocks," each a coherent set of APIs tailored to specific feature.
 
-Dapr is fully supported with the latest .NET and C# with SDK library, and even more the Dapr itself tries to support variety of different programming languages. Dapr is an open source project written in GO language. Also 
+Dapr is fully supported with the latest .NET and C# with SDK library, and even more the Dapr itself tries to support variety of different programming languages. Dapr is an open source project written in GO language. 
 
 ## Sidecar Pattern
 A significant feature of the Dapr runtime is its implementation of the sidecar pattern. In this pattern, every microservice has its own dedicated sidecar application running alongside it. The core principle here is that your main service contains the essential business logic and features, while cross-cutting concerns are offloaded to its sidecar.

@@ -1,0 +1,253 @@
+One of the characteristics of a well-implemented Web API is its use of available tools and strategies to increase the efficiency of request execution. Efficiency can refer to various factors, including execution time, data consistency, hardware consumption, and appropriate validation of inputs.
+
+In this article, titled "Implementing the Cache-Aside Pattern with MediatR," we will focus on optimizing execution time. I will be using the MediatR library to demonstrate how it is possible to implement this caching strategy as a cross-cutting concern, where the type of request will determine the behavior of the flow. We won't delve deeply into the Mediator pattern implemented by the MediatR library or other complementary patterns for this caching strategy, as they deserve their own articles.
+
+Cache-Aside Pattern
+This pattern focuses on recurring queries performed against an application, thereby storing the state of the query responses. This strategy is useful if you want to increase the performance, and hence increasing the execution time of your application. Also in case of outrage of the database or external API, this pattern encourages data replication so that the data will be available as a cache even if the primary source is down.
+
+In the CQRS pattern, there is a clear distinction between requests that are of type queries (read operations) and commands (write operations). In a layered architecture, following CQRS provides a structured flow for how queries and commands propagate, are processed, and how resources are allocated.
+
+Cache-Aside emphasizes using queries as the source for temporarily caching data, which can then be retrieved when identical queries are executed. The sum of primary key properties of the query object will be used to cache the result and perform the recurring cache fetch if the response already exists. The illustrations below showcase the relevant scenarios.
+
+<figure>
+  <img src="./cache_aside_1.svg" alt="Cache-Aside Flow" width="100%"/>
+  <figcaption>First time when frontend GET calls the backend for resource ID 1</figcaption>
+</figure>
+
+1. The frontend performs a GET request with ID 1.
+2. The backend checks if the response is already cached in the cache storage. Result: NOT FOUND.
+3. The backend performs a database call to fetch the data from the persistent data storage. Result: OK.
+4. The backend stores the response in the cache based on data from persistent storage with key ID 1. Result: OK.
+5. The backend responds to the frontend with an OK status, including the payload.
+
+Now the cache is populated with the state reflecting the resource with ID 1. The next time the frontend makes the same request with ID 1, the flow will have a shortcut to acquire the needed data, thereby boosting execution time and responsiveness for the client on the frontend side.
+
+<figure>
+  <img src="./cache_aside_2.svg" alt="Cache-Aside Flow" width="100%"/>
+  <figcaption>Second time when frontend GET calls the backend for resource ID 1</figcaption>
+</figure>
+
+1. The frontend performs a GET request with ID 1.
+2. The backend checks if the response is already cached in the cache storage. Result: OK.
+3. The backend responds to the frontend with an OK status, including the payload.
+
+It's no wonder the backend will respond quickly this time since we managed to bypass two roundtrips, both to the cache and the database storages. This is especially beneficial if the response object results from extensive computation, such as projection/aggregation, as the backend won't need to perform the same logic to derive the same result.
+
+## Drawbacks
+While the benefits of this pattern are clear, it's important to consider potential drawbacks, such as data quality and synchronization issues. What happens when the resource with ID 1 is updated or deleted? Without additional logic to compensate for these actions, the cache storage would be completely unaware of any PUT, PATCH, or DELETE operations performed on the resource with ID 1 in persistent storage. This means that the next time the frontend calls for ID 1, it could receive the cached OK response instead of the correct NOT FOUND response.
+
+To address this issue, a proposed solution is to equip commands with a list of keys to invalidate in the cache storage. For example, if ID 1 was deleted, the command should invalidate the cache for both fetching ID 1 and retrieving all related resources, as shown in the illustration below.
+
+<figure>
+  <img src="./cache_aside_3.svg" alt="Cache-Aside Flow with invaldiation" width="100%"/>
+  <figcaption>Frontend performs command call to the backend for resource ID 1</figcaption>
+</figure>
+
+1. The frontend performs a PUT/PATCH/DELETE request with ID 1.
+2. The backend executes the core command handler logic and persists the changes in the database. Result: OK.
+3. The backend invalidates the cache with the list of keys associated with the command. Result: OK.
+4. The backend responds to the frontend with an OK status.
+
+Another drawback of this pattern is the introduction of a new integration to the backend. As a general rule, any integration may occasionally fail. What happens if, for some reason, the backend doesn't receive a response from the cache storage instance after the command operation has been persisted in the database? This is something developers must consider in their overall assessment. What are the costs of a temporary "unsynchronized" state between the cache and the database if a failure occurs? While this may be an edge case consideration, and the flow might perform as intended 99.999% of the time, you must determine whether the solution can tolerate the 0.001% failure rate. Eventual consistency with messaging might be the answer, but that is outside the scope of this article.
+
+Now to be fair on this pattern, it works also the other way. If the persistent storage is down at a given moment,  but you have the cache response available, then the frontend will still receive the data needed for the UI.
+
+With the implementation proposal I want to share, we are not forced to use this caching strategy everywhere. Rather, it's up to the developer to decide which types of query handlers to cache and which should not have it.
+
+## Implementation
+Let's start by implementing the CacheService, which will be the main service component invoked by both query and command handler flows.
+
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">interface</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">ICacheService</span>
+{
+    Task&lt;T?&gt; GetOrAddCache&lt;T&gt;(<span style="color: rgb(255, 166, 87); font-weight: 400;">string</span> key, RequestHandlerDelegate&lt;T&gt; handler, TimeSpan expiry);
+    <span style="color: rgb(201, 209, 217); font-weight: 400;">Task <span style="color: rgb(210, 168, 255); font-weight: 400;">RemoveCache</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 166, 87); font-weight: 400;">string</span>[] keys</span>)</span>;
+}
+
+<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">class</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">CacheService</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">IDistributedCache cache</span>) : ICacheService</span>
+{
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">Task</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">T</span>?&gt; <span style="color: rgb(210, 168, 255); font-weight: 400;">GetOrAddCache</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">T</span>&gt;(<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 166, 87); font-weight: 400;">string</span> key, RequestHandlerDelegate&lt;T&gt; handler, TimeSpan expiry</span>)</span>
+    {
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> cachedValue = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> cache.GetStringAsync(key);
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">if</span> (!<span style="color: rgb(255, 166, 87); font-weight: 400;">string</span>.IsNullOrWhiteSpace(cachedValue))
+        {
+            <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> JsonSerializer.Deserialize&lt;T&gt;(cachedValue);
+        }
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> result = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> handler();
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">if</span> (result == <span style="color: rgb(121, 192, 255); font-weight: 400;">null</span>) <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> <span style="color: rgb(121, 192, 255); font-weight: 400;">default</span>;
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> cache.SetStringAsync(key, JsonSerializer.Serialize(result), <span style="color: rgb(255, 123, 114); font-weight: 400;">new</span> DistributedCacheEntryOptions
+        {
+            SlidingExpiration = expiry,
+            AbsoluteExpiration = DateTime.Today.AddDays(<span style="color: rgb(121, 192, 255); font-weight: 400;">1</span>)
+        });
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> result;
+    }
+
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> Task <span style="color: rgb(210, 168, 255); font-weight: 400;">RemoveCache</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 166, 87); font-weight: 400;">string</span>[] keys</span>)</span>
+    {
+        List&lt;Task&gt; tasks = <span style="color: rgb(255, 123, 114); font-weight: 400;">new</span>();
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">foreach</span> (<span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> key <span style="color: rgb(255, 123, 114); font-weight: 400;">in</span> keys)
+        {
+            tasks.Add(cache.RemoveAsync(key));
+        }
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> Task.WhenAll(tasks);
+    }
+}</pre>
+
+
+In this example, I am using IDistributedCache, an abstraction provided by the Microsoft.Extensions namespace. Under the hood, you can decide whether to use an in-memory cache, a distributed cache like Redis, etc. RequestHandlerDelegate is a delegate type representing an asynchronous task to be performed, defined in the MediatR namespace. This is used for chaining the different behavior handlers of the MediatR pipeline. It will be provided by the relevant behavior pipelines when invoking the CacheService.
+
+The GetOrAddCache method contains the logic to decide whether to execute the delegate representing the core handler logic or acquire the cached data and return early with the response.
+
+You need to install the NuGet package MediatR to follow this code implementation.
+
+Next, we define an interface representing queries eligible for caching, which must implement a key property. This interface is an extension of the base interface provided by MediatR (IRequest) and respects the generic type to be defined.
+
+
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">interface</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">ICachedQuery</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">TResponse</span>&gt; : <span style="color: rgb(210, 168, 255); font-weight: 400;">IRequest</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">TResponse</span>&gt;
+{
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 166, 87); font-weight: 400;">string</span> Key { <span style="color: rgb(255, 123, 114); font-weight: 400;">get</span>; }
+}</pre>
+
+Now, let's implement the behavior pipeline representing the cross-cutting logic for handling queries that inherit ICachedQuery.
+
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">class</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">CachedQueryHandlerPipelineBehavior</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">TRequest</span>, <span style="color: rgb(210, 168, 255); font-weight: 400;">TResponse</span>&gt;(<span style="color: rgb(201, 209, 217); font-weight: 400;">
+    ICacheService cacheService</span>) : IPipelineBehavior&lt;TRequest, TResponse&gt;
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">where</span> TRequest : ICachedQuery&lt;TResponse&gt;</span>
+{
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> Task&lt;TResponse&gt; <span style="color: rgb(210, 168, 255); font-weight: 400;">Handle</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">TRequest request, RequestHandlerDelegate&lt;TResponse&gt; next, CancellationToken cancellationToken</span>)</span>
+    {
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> result = cacheService.GetOrAddCache(request.Key, handler: next, expiry: TimeSpan.FromMinutes(<span style="color: rgb(121, 192, 255); font-weight: 400;">5</span>));
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> result!;
+    }
+}</pre>
+
+Note the constraints we are placing on the generic type TRequest. When we inherit the base IPipelineBehavior<TRequest, TResponse>, we specify that this pipeline component should only be invoked when the incoming IRequest is of a type that implements ICachedQuery. Essentially, we are separating the concern of regular queries from those that require caching.
+
+We have access to the Key property, which is defined and implemented. This will be used by the CacheService to fetch and potentially cache the response of the delegate. When implementing the IPipelineBehavior, the method signature includes a delegate parameter of type RequestHandlerDelegate. This delegate is passed throughout the pipeline and used by the CacheService.
+
+Next, we define an interface for commands that expands on the base IRequest interface. This interface includes an array of keys that the CacheService will use to remove the associated cached data.
+
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">interface</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">IInvalidateCacheCommand</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">TResponse</span>&gt; : <span style="color: rgb(210, 168, 255); font-weight: 400;">IRequest</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">TResponse</span>&gt;
+{
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 166, 87); font-weight: 400;">string</span>[] InvalidateKeys { <span style="color: rgb(255, 123, 114); font-weight: 400;">get</span>; }
+}</pre>
+
+Finally, we implement the behavior pipeline representing the cross-cutting logic for invalidating the cache before executing the core command handler logic.
+
+
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">class</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">InvalidateCacheCommandHandlerPipelineBehavior</span>&lt;<span style="color: rgb(210, 168, 255); font-weight: 400;">TRequest</span>, <span style="color: rgb(210, 168, 255); font-weight: 400;">TResponse</span>&gt;(<span style="color: rgb(201, 209, 217); font-weight: 400;">
+    ICacheService cacheService</span>) : IPipelineBehavior&lt;TRequest, TResponse?&gt;
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">where</span> TRequest : IInvalidateCacheCommand&lt;TResponse&gt;</span>
+{
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> Task&lt;TResponse?&gt; Handle(TRequest request, RequestHandlerDelegate&lt;TResponse?&gt; next, CancellationToken cancellationToken)
+    {
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> cacheService.RemoveCache(request.InvalidateKeys);
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> response = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> next();
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> response;
+    }
+}</pre>
+
+Below are the extension methods provided by MediatR for configuring DI, registering the handlers, and adding behavior pipelines:
+
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; ">builder.Services.AddMediatR(options =&gt;
+{
+    options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+    options.AddBehavior(<span style="color: rgb(255, 123, 114); font-weight: 400;">typeof</span>(IPipelineBehavior&lt;,&gt;), <span style="color: rgb(255, 123, 114); font-weight: 400;">typeof</span>(CachedQueryHandlerPipelineBehavior&lt;,&gt;));
+    options.AddBehavior(<span style="color: rgb(255, 123, 114); font-weight: 400;">typeof</span>(IPipelineBehavior&lt;,&gt;), <span style="color: rgb(255, 123, 114); font-weight: 400;">typeof</span>(InvalidateCacheCommandHandlerPipelineBehavior&lt;,&gt;));
+});</pre>
+
+Now the MedianR library is configured to use the behavior pipelines for handling queries and commands. The CacheService is responsible for fetching and caching the data, while the behavior pipelines are responsible for invoking the CacheService and invalidating the cache when necessary.
+
+Here is an example of a Controller that uses the MediatR library to send a query and a command to respective handlers and the contracts that inherit the caching interfaces.
+
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">record</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">CompleteTodoCommand</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">Guid Id</span>) : IInvalidateCacheCommand&lt;CompleteTodoResponse&gt;</span>
+{
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 166, 87); font-weight: 400;">string</span>[] InvalidateKeys =&gt; [
+        <span style="color: rgb(165, 214, 255); font-weight: 400;">"GET_TODOS"</span>,
+        <span style="color: rgb(165, 214, 255); font-weight: 400;">$"GET_TODO:<span style="color: rgb(201, 209, 217); font-weight: 400;">{Id}</span>"</span>];
+}
+
+<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">record</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">AddTodoCommand</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 166, 87); font-weight: 400;">string</span> Content, <span style="color: rgb(255, 166, 87); font-weight: 400;">bool</span> Completed</span>) : IInvalidateCacheCommand&lt;AddTodoResponse&gt;</span>
+{
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 166, 87); font-weight: 400;">string</span>[] InvalidateKeys =&gt; [<span style="color: rgb(165, 214, 255); font-weight: 400;">"GET_TODOS"</span>];
+}
+
+<span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">record</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">GetTodoByIdQuery</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">Guid Id</span>) : ICachedQuery&lt;GetTodoByIdResponse&gt;</span>
+{
+	<span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 166, 87); font-weight: 400;">string</span> Key =&gt; <span style="color: rgb(165, 214, 255); font-weight: 400;">$"GET_TODO:<span style="color: rgb(201, 209, 217); font-weight: 400;">{Id}</span>"</span>;
+}
+
+
+<span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">class</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">TodoController</span> : <span style="color: rgb(210, 168, 255); font-weight: 400;">ControllerBase</span>
+{
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">private</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">readonly</span> IMediator _mediator;
+
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(210, 168, 255); font-weight: 400;">AddTodoController</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">IMediator mediator</span>)</span>
+    {
+        _mediator = mediator;
+    }
+
+    [<span style="color: rgb(121, 192, 255); font-weight: 400;">HttpPost(<span style="color: rgb(165, 214, 255); font-weight: 400;">"todos"</span>)</span>]
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> Task&lt;IActionResult&gt; <span style="color: rgb(210, 168, 255); font-weight: 400;">AddTodoAsync</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">AddTodoCommand command</span>)</span>
+    {
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> response = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> _mediator.Send(command);
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> Ok(response);
+    }
+
+    [<span style="color: rgb(121, 192, 255); font-weight: 400;">HttpPut(<span style="color: rgb(165, 214, 255); font-weight: 400;">"todos/{id}/complete"</span>)</span>]
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> Task&lt;IActionResult&gt; <span style="color: rgb(210, 168, 255); font-weight: 400;">CompleteTodo</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">Guid id</span>)</span>
+    {
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> command = <span style="color: rgb(255, 123, 114); font-weight: 400;">new</span> CompleteTodoCommand(id);
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> result = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> _mediator.Send(command);
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> Ok(result);
+    }
+
+    [<span style="color: rgb(121, 192, 255); font-weight: 400;">HttpGet(<span style="color: rgb(165, 214, 255); font-weight: 400;">"todos/{id}"</span>)</span>]
+    <span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> Task&lt;IActionResult&gt; <span style="color: rgb(210, 168, 255); font-weight: 400;">GetTodoById</span>(<span style="color: rgb(201, 209, 217); font-weight: 400;">Guid id</span>)</span>
+    {
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> query = <span style="color: rgb(255, 123, 114); font-weight: 400;">new</span> GetTodoByIdQuery(id);
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> response = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> _mediator.Send(query);
+
+        <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> Ok(response);
+    }
+}</pre>
+
+
+
+## Scenario: Multi-Step Data Retrieval
+
+Imagine a scenario where your application needs to retrieve data from an external API and database. The code might look something like this:
+
+<pre style="font-family:monospace;color: rgb(201, 209, 217); background-color: rgb(13, 17, 23); font-weight: 400; "><span style="color: rgb(201, 209, 217); font-weight: 400;"><span style="color: rgb(255, 123, 114); font-weight: 400;">public</span> <span style="color: rgb(255, 123, 114); font-weight: 400;">async</span> Task&lt;ProcessedData&gt; <span style="color: rgb(210, 168, 255); font-weight: 400;">GetAndProcessDataAsync</span>()</span>
+{
+    <span style="color: rgb(139, 148, 158); font-weight: 400;">// Fetch data from an external API</span>
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> externalData = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> externalApi.GetResource();
+
+    <span style="color: rgb(139, 148, 158); font-weight: 400;">// Fetch data from the database</span>
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> dbData = <span style="color: rgb(255, 123, 114); font-weight: 400;">await</span> dbContext.ProcessData(externalData.Id);
+
+    <span style="color: rgb(139, 148, 158); font-weight: 400;">// Perform aggregation or projection on the fetched dbData</span>
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">var</span> finalData = PerformCostlyAggregationOrProjection(dbData);
+
+    <span style="color: rgb(139, 148, 158); font-weight: 400;">// Return the final processed data</span>
+    <span style="color: rgb(255, 123, 114); font-weight: 400;">return</span> finalData;
+}</pre>
+
+The externalApi.GetResource() call can take up to several seconds to complete. After retrieving the external data, the application processes it and performs a database operation using dbContext.GetData(externalData.Id). This can be a time-consuming process, depending on the complexity of the data size fetching and the size of the database. Finally, the fetched data undergoes a costly aggregation or projection, which involves additional computation. This could include complex calculations, data transformations, or aggregating large datasets. This step can be particularly time-consuming and could further delay the response to the user.
+
+If this method is called frequently, the repeated API calls, database queries, and costly aggregation/projection operations can create a substantial performance bottleneck. Each execution could take several seconds, leading to latency issues and a poor user experience.
+
+By implementing caching in scenarios where your application involves costly operations, such as external API calls, database queries, and intensive aggregation or projection tasks, you can significantly improve performance. The Cache-Aside pattern allows you to avoid unnecessary delays, improving the performance and speed of your application.
+
+
+## Conclusion
+Incorporating the Cache-Aside pattern into your application can significantly enhance performance by reducing database load and speeding up response times for frequently accessed data. By strategically caching query results and invalidating them when updates occur, you can ensure your application remains efficient while maintaining data consistency. However, it's crucial to weigh the potential drawbacks, such as the complexity added by cache management and the risk of stale data. The example implementation provided demonstrates how you can integrate this pattern using the MediatR library, allowing you to introduce caching as a cross-cutting concern in your application's architecture. As always, it's important to assess whether the benefits of this approach align with the specific needs of your application and its users.
