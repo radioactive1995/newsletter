@@ -60,11 +60,21 @@ jobs:
       - name: Install EF Core tools
         run: dotnet tool install --global dotnet-ef
 
-      - name: Generate and apply migrations
+      - name: Generate EF Core Migration Script
         run: |
           export PATH="$PATH:~/.dotnet/tools"
           dotnet ef migrations script --idempotent --output ./migrations.sql --project ./src/NewsletterService/Infrastructure/Infrastructure.csproj --startup-project ./src/NewsletterService/Web/Web.csproj
-          sqlcmd -S ${{ env.SQL_SERVER_NAME }} -d ${{ env.SQL_DATABASE_NAME }} -U ${{ env.SQL_USER }} -P ${{ secrets.SQL_PASSWORD }} -i ./migrations.sql -l 60 -t 600
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy SQL Script to Azure SQL Database
+        uses: azure/sql-action@v2.3
+        with:        
+          connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+          path: './migrations.sql'
 
   deploy:
     permissions:
