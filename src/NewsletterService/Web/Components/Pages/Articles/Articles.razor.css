@@ -14,11 +14,7 @@
 
 
 .articles {
-    display: grid;
-    gap: 10px;
-    grid-auto-rows: minmax(100px, auto);
-    overflow: auto;
-    gap: 60px;
+    display: block;
     margin: 0 auto;
     list-style-type: none;
     padding: 0;
@@ -31,7 +27,6 @@
     border-radius: 4px;
     overflow: hidden !important;
     height: auto;
-    display: inherit
 }
 
 .articles li a {
