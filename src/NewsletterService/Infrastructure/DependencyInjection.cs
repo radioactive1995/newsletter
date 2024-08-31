@@ -41,7 +41,7 @@ public static class DependencyInjection
                 sqlOptions.EnableRetryOnFailure(
                     maxRetryCount: 15,
                     maxRetryDelay: TimeSpan.FromMinutes(1),
-                    errorNumbersToAdd: [ 40613 ]);
+                    errorNumbersToAdd: [ -2, 1205, 40197, 40501, 40613, 10928, 10929 ]);
             });
         });
 
