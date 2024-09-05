@@ -1,6 +1,7 @@
 ﻿using Domain.Articles;
 using Domain.Common;
 using Domain.Subscribers;
+using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Reflection;
@@ -11,6 +12,7 @@ public class NewsletterContext : DbContext
 {
     public DbSet<Article> Articles { get; set; }
     public DbSet<Subscriber> Subscribers { get; set; }
+    public DbSet<User> Users { get; set; }
 
     public NewsletterContext(DbContextOptions<NewsletterContext> options) : base(options) {}
 
@@ -44,6 +46,28 @@ public class NewsletterContext : DbContext
                 CreatedDate = new DateTime(year: 2024, month: 8, day: 31, hour: default, minute: default, second: default, kind: DateTimeKind.Utc),
                 EditedDate = new DateTime(year: 2024, month: 8, day: 31, hour: default, minute: default, second: default, kind: DateTimeKind.Utc),
             });
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable(nameof(Users));
+
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Emails).HasConversion(
+                v => string.Join(',', v),
+                v => v.Split(',', StringSplitOptions.None).ToList()
+            )
+            .IsRequired();
+        });
+
+        modelBuilder.Entity<Comment>(entity =>
+        {
+            entity.ToTable("Comments");
+
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Content).IsRequired();
         });
 
 

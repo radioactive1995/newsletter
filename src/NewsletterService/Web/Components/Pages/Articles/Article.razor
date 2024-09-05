@@ -1,26 +1,131 @@
 ﻿@page "/articles/{id:int}"
 @inject IMediator Mediator
-
-
+@inject NavigationManager Navigation
 
 <PageTitle>Article</PageTitle>
 
-@if (ArticleResponse != null)
+@if (ArticleResponse?.IsSuccess ?? false)
 {
-    <p>@ArticleResponse.Author, @ArticleResponse.PublishedDate</p>
+    <p>@ArticleResponse.Value.Value!.Author, @ArticleResponse.Value.Value.PublishedDate</p>
     <div class="article-content article-color">
-        <h1>@ArticleResponse.Title</h1>
-        @(new MarkupString(Markdown.ToHtml(ArticleResponse.MarkdownContent)))
+        <h1>@ArticleResponse.Value.Value.Title</h1>
+        @(new MarkupString(Markdown.ToHtml(ArticleResponse.Value.Value.MarkdownContent)))
     </div>
+
+
+    <div class="comments-section">
+        <h4>Comments</h4>
+
+        @if (UserContext.HasValue && UserContext.Value.IsError && UserContext.Value.FirstError.Type == ErrorType.Unauthorized)
+        {
+            <form id="epost-form" method="post" @onsubmit="RedirectToLogin" @formname="email-form">
+                <AntiforgeryToken />
+                <textarea disabled @bind="CommentText" id="comment-textarea" placeholder="Enter your comment..."></textarea>
+                <button id="email-submit" type="submit">
+                    Login
+                    @if (ShowLoading)
+                    {
+                        <div class="loader"></div>
+                    }
+                </button>
+            </form>
+        }
+
+        @if (UserContext.HasValue && UserContext.Value.IsSuccess)
+        {
+            <form id="epost-form" method="post" @onsubmit="Submit" @formname="email-form">
+                <AntiforgeryToken />
+                <textarea @bind="CommentText" id="comment-textarea" placeholder="Enter your comment..."></textarea>
+                <button id="email-submit" type="submit">
+                    Submit
+                    @if (ShowLoading)
+                    {
+                        <div class="loader"></div>
+                    }
+                </button>
+            </form>
+        }
+
+
+
+        @if (!ShowLoading && AddCommentResult.HasValue && AddCommentResult.Value.IsSuccess)
+        {
+            <div id="success-email"><h4>You have published a comment!</h4></div>
+        }
+
+        else if (!ShowLoading && AddCommentResult.HasValue && AddCommentResult.Value.IsError)
+        {
+            <div id="exhausted-email"><h4>Exhausted attempts to comment, try again later.</h4></div>
+        }
+
+        <ul>
+            @foreach (var comment in Comments?.Value ?? [])
+            {
+                <Comment ArticleId="@Id" CommentBody="@comment" CurrentUserDisplayName="@(UserContext?.Value?.DisplayName)" />
+            }
+        </ul>
+    </div>
+
+    <Pagination CurrentPage="CurrentPage" MaxPage="MaxPage" OnPageChanged="OnPageChanged" />
+
 }
 
 @code {
     [Parameter]
     public int Id { get; set; }
-    public FetchArticle.Response? ArticleResponse { get; set; }
+    public Result<FetchArticle.Response>? ArticleResponse { get; set; }
+    public Result<FetchComments.Response[]>? Comments { get; set; }
+    public Result<GetUserContext.Response>? UserContext { get; set; }
+    public Result<Unit>? AddCommentResult { get; set; }
+
+
+    public int CurrentPage { get; set; }
+    public int PageSize => 6;
+    public int TotalComments { get; set; }
+    public int MaxPage => (int)Math.Ceiling((double)TotalComments / PageSize);
+
+    public string CommentText { get; set; } = string.Empty;
+    private bool ShowLoading { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
+        CurrentPage = 1;
+        TotalComments = 0;
         ArticleResponse = await Mediator.Send(new FetchArticle.Query(Id));
+        UserContext = await Mediator.Send(new GetUserContext.Query());
+        await LoadCommentsAsync();
+    }
+
+    private async Task Submit()
+    {
+        if (ShowLoading) return;
+
+        ShowLoading = true;
+        AddCommentResult = await Mediator.Send(new AddComment.Command(Id, CommentText, MaxPage, PageSize));
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        ShowLoading = false;
+    }
+
+    public async Task OnPageChanged(int newPage)
+    {
+        CurrentPage = newPage;
+        await LoadCommentsAsync();
+    }
+
+    public async Task LoadCommentsAsync()
+    {
+        var response = await Mediator.Send(new FetchComments.Query(Id, CurrentPage, PageSize));
+
+        Comments = response;
+        TotalComments = response.Value?.FirstOrDefault()?.CommentsCount ?? 0;
+    }
+
+    private void RedirectToLogin()
+    {
+        // Get the current URI and extract the relative path
+        var returnUrl = new Uri(Navigation.Uri).PathAndQuery;
+
+        // Navigate to the login page with the returnUrl as a query parameter
+        Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(returnUrl)}", forceLoad: true);
     }
 }

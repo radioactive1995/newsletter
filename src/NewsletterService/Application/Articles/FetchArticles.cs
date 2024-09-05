@@ -2,12 +2,14 @@
 using MediatR;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Requests;
+using ErrorOr;
+using Domain.Common;
 
 namespace Application.Articles;
 
 public static class FetchArticles
 {
-    public record Query(int CurrentPage, int PageSize) : ICachedQuery<Response[]>
+    public record Query(int CurrentPage, int PageSize) : ICachedQuery<Result<Response[]>>
     {
         public string Key => $"{nameof(FetchArticles)}:{CurrentPage}:{PageSize}";
     }
@@ -19,9 +21,9 @@ public static class FetchArticles
         int ArticlesCount);
 
     public class QueryHandler(
-        IArticleRepository articleRepository) : IRequestHandler<Query, Response[]>
+        IArticleRepository articleRepository) : IRequestHandler<Query, Result<Response[]>>
     {
-        public async Task<Response[]> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<Response[]>> Handle(Query request, CancellationToken cancellationToken)
         {
             var entities = await articleRepository.FetchArticles(request.CurrentPage, request.PageSize);
             var articlesCount = await articleRepository.FetchArticlesCount();

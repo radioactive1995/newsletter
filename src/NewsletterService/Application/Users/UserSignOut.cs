@@ -5,13 +5,13 @@ namespace Application.Users;
 
 public static class UserSignOut
 {
-    public record Command() : IRequest;
+    public record Command(string? ReturnUrl) : IRequest;
 
     public class CommandHandler(IIdentityProviderService identityProviderService) : IRequestHandler<Command>
     {
         public async Task Handle(Command request, CancellationToken cancellationToken)
         {
-            await identityProviderService.Signout();
+            await identityProviderService.Signout(request.ReturnUrl);
         }
     }
 }

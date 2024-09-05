@@ -1,20 +1,21 @@
-﻿@inject IMediator Mediator
+﻿@using ErrorOr
+@inject IMediator Mediator
 @inject NavigationManager Navigation
 
-@if (UserContext.HasValue && UserContext.Value.ErrorsOrEmptyList.Any(e => e.Type == ErrorType.Unauthorized))
+@if (!UserContext?.IsSuccess ?? false && UserContext?.FirstError.Type == ErrorType.Unauthorized)
 {
     <li><a href="#" @onclick="RedirectToLogin">Login</a></li>
 }
 
-else if (UserContext.HasValue)
+else if (UserContext?.IsSuccess ?? false)
 {
-    <li style="max-width: 250px"><span id="user-info" style="color: #E6F2FA; overflow-x: auto; display: block;">@UserContext.Value.Value.Email</span></li>
+    <li style="max-width: 250px"><span id="user-info" style="color: #E6F2FA; overflow-x: auto; display: block;">@UserContext?.Value?.DisplayName</span></li>
     <li><a href="#" @onclick="RedirectToSignOut">Sign out</a></li>
 }
 
 
 @code {
-    public ErrorOr<GetUserContext.Response>? UserContext { get; set; }
+    public Result<GetUserContext.Response>? UserContext { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -23,11 +24,19 @@ else if (UserContext.HasValue)
 
     private void RedirectToLogin()
     {
-        Navigation.NavigateTo("/login", forceLoad: true);
+        // Get the current URI and extract the relative path
+        var returnUrl = new Uri(Navigation.Uri).PathAndQuery;
+
+        // Navigate to the login page with the returnUrl as a query parameter
+        Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(returnUrl)}", forceLoad: true);
     }
 
     private void RedirectToSignOut()
     {
-        Navigation.NavigateTo("/signout", forceLoad: true);
+        // Get the current URI and extract the relative path
+        var returnUrl = new Uri(Navigation.Uri).PathAndQuery;
+
+        // Navigate to the signout page with the returnUrl as a query parameter
+        Navigation.NavigateTo($"/signout?returnUrl={Uri.EscapeDataString(returnUrl)}", forceLoad: true);
     }
 }
