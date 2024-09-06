@@ -56,9 +56,10 @@ else if (!ShowLoading && SubmitResult.HasValue && SubmitResult.Value.IsError)
 
     private async Task Submit()
     {
+        if (ShowLoading) return;
+
         ShowLoading = true;
         SubmitResult = await Mediator.Send(new SubscribeToNewsletter.Command(Email));
-        await Task.Delay(TimeSpan.FromSeconds(6));
         ShowLoading = false;
     }
 }

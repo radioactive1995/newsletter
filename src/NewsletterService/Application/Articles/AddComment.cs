@@ -20,7 +20,7 @@ public static class AddComment
             {
                 var keys = new List<string>();
 
-                for (var i = 1; i <= MaxPage; i++)
+                for (var i = 0; i <= MaxPage + 1; i++)
                 {
                     keys.Add($"{nameof(FetchComments)}:{ArticleId}:{i}:{PageSize}");
                 }

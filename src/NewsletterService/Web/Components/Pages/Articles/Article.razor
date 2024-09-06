@@ -35,7 +35,7 @@
         {
             <form id="epost-form" method="post" @onsubmit="Submit" @formname="email-form">
                 <AntiforgeryToken />
-                <textarea @bind="CommentText" id="comment-textarea" placeholder="Enter your comment..."></textarea>
+                <textarea required @bind="CommentText" id="comment-textarea" placeholder="Enter your comment..." maxlength="100" ></textarea>
                 <button id="email-submit" type="submit">
                     Submit
                     @if (ShowLoading)
@@ -94,6 +94,7 @@
         ArticleResponse = await Mediator.Send(new FetchArticle.Query(Id));
         UserContext = await Mediator.Send(new GetUserContext.Query());
         await LoadCommentsAsync();
+        var test = MaxPage;
     }
 
     private async Task Submit()
@@ -102,7 +103,6 @@
 
         ShowLoading = true;
         AddCommentResult = await Mediator.Send(new AddComment.Command(Id, CommentText, MaxPage, PageSize));
-        await Task.Delay(TimeSpan.FromSeconds(5));
         ShowLoading = false;
     }
 
