@@ -1,0 +1,20 @@
+﻿li p{
+    margin: 0;
+}
+
+li {
+    padding: 5px;
+    margin: 4% 0 0 0;
+    background-color: #cfd9e1;
+    width: auto;
+    color: #2D2D2D;
+    font-weight: bolder;
+}
+
+.body-comment {
+    font-weight: lighter;
+}
+
+p i {
+    margin-right: 5px;
+}

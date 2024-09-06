@@ -1,0 +1,35 @@
+﻿<li class="comment">
+    <p><i class="fa-solid fa-user"></i>@(CurrentUserDisplayName + YourDisplayPrefix) @GetTimeAgo(@CommentBody.CreatedDate)</p>
+    <p class="body-comment">@CommentBody.Content</p>
+</li>
+
+@code {
+    [Parameter]
+    public int ArticleId { get; set; }
+
+    [Parameter]
+    public FetchComments.Response CommentBody { get; set; } = null!;
+
+    [Parameter]
+    public string CurrentUserDisplayName { get; set; } = string.Empty;
+
+    public string YourDisplayPrefix => CommentBody.DisplayName == CurrentUserDisplayName ? " (You)" : "";
+
+    private string GetTimeAgo(DateTime createdDate)
+    {
+        var timeSpan = DateTime.UtcNow - createdDate.ToUniversalTime();
+
+        return timeSpan switch
+        {
+            _ when timeSpan.TotalSeconds < 60 => $"{timeSpan.Seconds} seconds ago",
+            _ when timeSpan.TotalMinutes < 60 => $"{timeSpan.Minutes} minutes ago",
+            _ when timeSpan.TotalHours < 24 => $"{timeSpan.Hours} hours ago",
+            _ when timeSpan.TotalDays < 7 => $"{timeSpan.Days} days ago",
+            _ when timeSpan.TotalDays < 30 => $"{(int)(timeSpan.TotalDays / 7)} weeks ago",
+            _ when timeSpan.TotalDays < 365 => $"{(int)(timeSpan.TotalDays / 30)} months ago",
+            _ => $"{(int)(timeSpan.TotalDays / 365)} years ago",
+        };
+    }
+
+
+}

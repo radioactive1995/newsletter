@@ -11,9 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
 using Infrastructure.Configuration;
-using Microsoft.Extensions.Options;
+using System.Security.Claims;
+using Application.Users;
+using Ardalis.GuardClauses;
 
 namespace Infrastructure;
 public static class DependencyInjection
@@ -22,6 +23,7 @@ public static class DependencyInjection
     {
         services.AddTransient<IArticleRepository, ArticleRepository>();
         services.AddTransient<ISubscriberRepository, SubscriberRepository>();
+        services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IEmailService, EmailService>();
 
         services.AddSingleton<ICacheService, CacheService>();
@@ -103,7 +105,29 @@ public static class DependencyInjection
                     }
 
                     return Task.CompletedTask;
-                }
+                },
+
+                OnTokenValidated = context =>
+                {
+                    var eventBus = context.HttpContext.RequestServices.GetRequiredService<IEventBus>();
+
+                    Guard.Against.Null(context.Principal, message: "OIDC.OnTokenValidated.ClaimsPrincipal cannot be null");
+                    Guard.Against.Null(context.Principal.Identity, message: "OIDC.OnTokenValidated.ClaimsPrincipal.IIdentity cannot be null");
+
+                    var claimsIdentity = (ClaimsIdentity)context.Principal.Identity;
+
+                    var emailClaims = claimsIdentity.FindAll("emails");
+                    var oidClaim = claimsIdentity.FindFirst(UserLogin.OID_CLAIMTYPE);
+                    var idpClaim = claimsIdentity.FindFirst(UserLogin.IDP_CLAIMTYPE);
+
+                    Guard.Against.NullOrEmpty(emailClaims, message: "OIDC.OnTokenValidated.emailClaims cannot be null or empty");
+                    Guard.Against.Null(oidClaim, message: "OIDC.OnTokenValidated.oidClaim cannot be null");
+                    Guard.Against.NullOrWhiteSpace(oidClaim.Value, message: "OIDC.OnTokenValidated.oidClaim.Value cannot be null or empty");
+
+                    eventBus.PublishAsync(new UserLogin.Event(Emails: emailClaims.Select(e => e.Value).ToArray(), OidClaim: oidClaim.Value, IdpClaim: idpClaim?.Value));
+
+                    return Task.CompletedTask;
+                },
             };
         });
 

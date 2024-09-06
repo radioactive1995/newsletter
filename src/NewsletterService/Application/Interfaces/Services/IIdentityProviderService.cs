@@ -2,6 +2,6 @@
 
 public interface IIdentityProviderService
 {
-    public Task Challenge();
-    public Task Signout();
+    public Task Challenge(string? returnUrl);
+    public Task Signout(string? returnUrl);
 }

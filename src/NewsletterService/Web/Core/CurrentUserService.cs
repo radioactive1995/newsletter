@@ -19,7 +19,7 @@ public class CurrentUserService(
         return new UserInformationDto(
             accessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier),
             accessor.HttpContext?.User.FindFirstValue("name"),
-            accessor.HttpContext?.User.FindFirstValue("emails")
+            accessor.HttpContext?.User.FindAll("emails").Select(e => e.Value) ?? []
         );
     }
 }

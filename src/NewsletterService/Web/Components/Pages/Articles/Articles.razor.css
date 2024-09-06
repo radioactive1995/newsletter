@@ -15,11 +15,13 @@
 
 .articles {
     display: block;
-    margin: 0 auto;
+    margin: 0 auto 100px auto;
     list-style-type: none;
     padding: 0;
     width: 100%;
-    height: auto;
+    height: 45vh !important;
+    max-height: 800px;
+    overflow: auto;
 }
 
 .articles li {

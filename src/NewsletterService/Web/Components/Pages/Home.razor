@@ -14,7 +14,7 @@
 </h4>
 
 <h4 class="home-intro">
-    Currently <span id="current-developers">@SubscribersCountResult?.Count</span> developers have chosen to stay updated and receive notifications via email when new articles are published. Join today and be part of the community!
+    Currently <span id="current-developers">@SubscribersCountResult?.Value?.Count</span> developers have chosen to stay updated and receive notifications via email when new articles are published. Join today and be part of the community!
 </h4>
 
 <form id="epost-form" method="post" @onsubmit="Submit" @formname="email-form">
@@ -42,27 +42,22 @@ else if (!ShowLoading && SubmitResult.HasValue && SubmitResult.Value.IsError)
 }
 
 @code {
-    protected override void OnInitialized()
-    {
-        Email = string.Empty;
-        ShowLoading = false;
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        Email = string.Empty;
-        ShowLoading = false;
         SubscribersCountResult = await Mediator.Send(new FetchSubscribersCount.Query());
     }
 
-    public string Email { get; set; }
-    private bool ShowLoading { get; set; }
-    public FetchSubscribersCount.Response? SubscribersCountResult { get; set; }
-    public ErrorOr<Unit>? SubmitResult { get; set; }
+    public string Email { get; set; } = string.Empty;
+    private bool ShowLoading { get; set; } = false;
+
+    public Result<FetchSubscribersCount.Response>? SubscribersCountResult { get; set; }
+    public Result<Unit>? SubmitResult { get; set; }
 
 
     private async Task Submit()
     {
+        if (ShowLoading) return;
+
         ShowLoading = true;
         SubmitResult = await Mediator.Send(new SubscribeToNewsletter.Command(Email));
         ShowLoading = false;

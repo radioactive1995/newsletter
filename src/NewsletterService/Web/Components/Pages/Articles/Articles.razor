@@ -10,7 +10,6 @@
 
 else
 {
-    <Pagination CurrentPage="CurrentPage" MaxPage="MaxPage" OnPageChanged="OnPageChanged" />
     <ul class="articles articles-double">
         @foreach (var article in articles)
         {
@@ -22,6 +21,7 @@ else
             </li>
         }
     </ul>
+    <Pagination CurrentPage="CurrentPage" MaxPage="MaxPage" OnPageChanged="OnPageChanged" />
 }
 
 @code {
@@ -30,7 +30,6 @@ else
     public int PageSize => 6;
     public int TotalArticles { get; set; }
     public int MaxPage => (int)Math.Ceiling((double)TotalArticles / PageSize);
-    private bool Initiliazed { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -43,11 +42,11 @@ else
     public async Task LoadArticlesAsync()
     {
         var response = await Mediator.Send(new FetchArticles.Query(CurrentPage, PageSize));
-        articles = response;
+        articles = response.Value;
 
-        if (response.Length > 0)
+        if (response.Value.Length > 0)
         {
-            TotalArticles = response[0].ArticlesCount;
+            TotalArticles = response.Value[0].ArticlesCount;
         }
     }
 

@@ -4,7 +4,7 @@
 
     <button type="submit" @onclick="() => NavigateToPage(CurrentPage)" class="active">@CurrentPage</button>
 
-    <button type="submit" @onclick="() => NavigateToPage(CurrentPage + 1)" class="@(CurrentPage == MaxPage ? "disabled" : "")">&raquo;</button>
+    <button type="submit" @onclick="() => NavigateToPage(CurrentPage + 1)" class="@(CurrentPage >= MaxPage ? "disabled" : "")">&raquo;</button>
 
 </div>
 

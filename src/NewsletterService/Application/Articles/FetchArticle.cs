@@ -2,12 +2,14 @@
 using MediatR;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Requests;
+using ErrorOr;
+using Domain.Common;
 
 namespace Application.Articles;
 
 public static class FetchArticle
 {
-    public record Query(int Id) : ICachedQuery<Response?>
+    public record Query(int Id) : ICachedQuery<Result<Response>>
     {
         public string Key => $"{nameof(FetchArticle)}:{Id}";
     }
@@ -19,14 +21,15 @@ public static class FetchArticle
         string Author,
         string PublishedDate);
 
+
     public class QueryHandler(
-        IArticleRepository articleRepository) : IRequestHandler<Query, Response?>
+        IArticleRepository articleRepository) : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Response?> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var entity = await articleRepository.FetchArticle(id: request.Id);
 
-            if (entity == null) return null;
+            if (entity == null) return Error.NotFound("FetchArticle.NotFound", $"Did not find article with id {request.Id}");
 
             var response = Mapping.FromEntity(entity);
 
@@ -45,6 +48,15 @@ public static class FetchArticle
                 entity.MarkdownContent,
                 entity.Author,
                 entity.CreatedDate.ToString("dd MMMM yyyy"));
+
+            //return new Response
+            //{
+            //    Title = entity.Title,
+            //    MarkdownContent = entity.MarkdownContent,
+            //    Author = entity.Author,
+            //    PublishedDate = entity.CreatedDate.ToString("dd MMMM yyyy")
+            //};
+
         }
     }
 }

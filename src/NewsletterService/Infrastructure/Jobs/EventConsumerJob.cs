@@ -10,7 +10,7 @@ public class EventConsumerJob(
     IServiceProvider serviceProvider,
     ILogger<EventConsumerJob> logger) : BackgroundService
 {
-    private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(15));
+    private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(2));
 
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

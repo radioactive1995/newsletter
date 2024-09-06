@@ -2,15 +2,17 @@
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Requests;
 using Application.Interfaces.Services;
+using Domain.Common;
 using Domain.Subscribers;
 using ErrorOr;
 using MediatR;
+using static Application.Articles.AddComment.EventHandler;
 
 namespace Application.Subscribers;
 
 public static class SubscribeToNewsletter
 {
-    public record Command(string Email) : IInvalidateCacheCommand<ErrorOr<Unit>>
+    public record Command(string Email) : IInvalidateCacheCommand<Result<Unit>>
     {
         public string[] InvalidateKeys => [new FetchSubscribersCount.Query().Key];
     }
@@ -21,12 +23,12 @@ public static class SubscribeToNewsletter
         ICurrentUserService userService,
         ICacheService cacheService,
         ISubscriberRepository subscriberRepository,
-        IEventBus eventBus) : IRequestHandler<Command, ErrorOr<Unit>>
+        IEventBus eventBus) : IRequestHandler<Command, Result<Unit>>
     {
-        public async Task<ErrorOr<Unit>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(Command command, CancellationToken cancellationToken)
         {
             var userIpAddress = userService.GetIpAddress() ?? string.Empty;
-            var cooldownIsActive = await cacheService.DoesKeyExist($"{nameof(EventHandler.ActivateCooldown)}:{userIpAddress}");
+            var cooldownIsActive = await cacheService.DoesKeyExist($"{nameof(SubscribeToNewsletter)}:{nameof(EventHandler)}:{nameof(ActivateCooldown)}:{userIpAddress}");
             
             if (cooldownIsActive) return Error.Validation("SubscribeToNewsletter.userIpAddress", "Cannot process request, cooldown is active");
 
@@ -50,7 +52,7 @@ public static class SubscribeToNewsletter
         {
             public async Task Handle(Event @event, CancellationToken cancellationToken)
             {
-                await cacheService.AddCache(key: $"{nameof(ActivateCooldown)}:{@event.UserIpAddress}", value: nameof(ActivateCooldown), expiry: TimeSpan.FromSeconds(10));
+                await cacheService.AddCache(key: $"{nameof(SubscribeToNewsletter)}:{nameof(EventHandler)}:{nameof(ActivateCooldown)}:{@event.UserIpAddress}", value: nameof(ActivateCooldown), expiry: TimeSpan.FromSeconds(10));
             }
         }
 

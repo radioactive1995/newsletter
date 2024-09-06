@@ -1,4 +1,5 @@
-﻿using Domain.Common;
+﻿using Ardalis.GuardClauses;
+using Domain.Common;
 
 namespace Domain.Subscribers;
 public class Subscriber : Entity<int>
@@ -7,7 +8,7 @@ public class Subscriber : Entity<int>
 
     public static Subscriber CreateEntity(string email)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(email, "Subscriber.Email cannot be null or empty");
+        Guard.Against.NullOrWhiteSpace(email, parameterName: nameof(Email), message: "Subscriber.Email cannot be null or empty");
 
         return new Subscriber()
         {
